@@ -172,3 +172,12 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+data/
+.ipynb_checkpoints/
+.idea/
+.quarto/
+__pycache__
+.DS_Store
+.idea/misc.xml
+/.quarto/

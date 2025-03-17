@@ -1,0 +1,3453 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.42">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>HopSkipDrive Take Home Test</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script><script src="takehome_notebook_files/libs/clipboard/clipboard.min.js"></script>
+<script src="takehome_notebook_files/libs/quarto-html/quarto.js"></script>
+<script src="takehome_notebook_files/libs/quarto-html/popper.min.js"></script>
+<script src="takehome_notebook_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="takehome_notebook_files/libs/quarto-html/anchor.min.js"></script>
+<link href="takehome_notebook_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="takehome_notebook_files/libs/quarto-html/quarto-syntax-highlighting-2f5df379a58b258e96c21c0638c20c03.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="takehome_notebook_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="takehome_notebook_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="takehome_notebook_files/libs/bootstrap/bootstrap-5e5b16f3fb164c478c0e4eb0862dd511.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
+
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">HopSkipDrive Take Home Test</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div id="434a6767-f5bd-4a07-9cd1-a27386605c76" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> xgboost <span class="im">import</span> XGBClassifier, XGBRegressor</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.model_selection <span class="im">import</span> train_test_split, RandomizedSearchCV</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.metrics <span class="im">import</span> (accuracy_score, precision_score, recall_score, f1_score, roc_auc_score, mean_absolute_error, mean_squared_error, r2_score)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.preprocessing <span class="im">import</span> StandardScaler</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.linear_model <span class="im">import</span> ElasticNet</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>pd.set_option(<span class="st">'display.max_columns'</span>, <span class="dv">70</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="table-of-contents" class="level2">
+<h2 class="anchored" data-anchor-id="table-of-contents">Table of Contents</h2>
+<ul>
+<li><a href="#hopskipdrive-take-home-test">HopSkipDrive Take Home Test</a><br>
+</li>
+<li><a href="#prerequisites">Prerequisites</a><br>
+</li>
+<li><a href="#research-questions">Research questions</a>
+<ul>
+<li><a href="#to-what-extent-can-we-optimize-the-boosts-to-get-rides-claimed-earlier">To what extent can we optimize the boosts to get rides claimed earlier?</a><br>
+</li>
+<li><a href="#to-what-extent-can-we-optimize-boosts-to-reduce-the-average-cost-of-rides">To what extent can we optimize boosts to reduce the average cost of rides?</a><br>
+</li>
+<li><a href="#to-what-extent-can-we-have-both-1-and-2">To what extent can we have both 1 and 2?</a><br>
+</li>
+</ul></li>
+<li><a href="#documentation-write-up">Documentation &amp; write up</a>
+<ul>
+<li><a href="#what-are-your-main-recommendations-based-on-the-data">What are your main recommendations based on the data?</a><br>
+</li>
+<li><a href="#what-other-data-might-you-want-or-need-to-test-assumptions-or-improve-model-performance">What other data might you want or need to test assumptions or improve model performance?</a><br>
+</li>
+<li><a href="#how-confident-are-you-that-the-assumptions-you-made-will-generate-improved-outcomes">How confident are you that the assumptions you made will generate improved outcomes?</a><br>
+</li>
+<li><a href="#write-up-a-short-description-of-any-toolkits-or-processes-that-you-believe-would-improve-the-workflow-the-process-or-the-model-performance">Write up a short description of any toolkits or processes that you believe would improve the workflow, the process, or the model performance</a><br>
+</li>
+<li><a href="#assume-that-this-model-is-performant-what-steps-would-you-take-to-deliver-the-predictions-or-results-routinely-and-at-scale">Assume that this model is performant. What steps would you take to deliver the predictions or results routinely and at scale?</a><br>
+</li>
+</ul></li>
+<li><a href="#data-preprocessing-for-analysis">Data preprocessing for analysis</a>
+<ul>
+<li><a href="#load-the-data">Load the Data</a><br>
+</li>
+<li><a href="#clean-the-data">Clean the data</a><br>
+</li>
+</ul></li>
+<li><a href="#exploratory-data-analysis">Exploratory Data Analysis</a>
+<ul>
+<li><a href="#what-are-the-factors-that-contribute-to-hopskipdrive-decision-to-boost-a-trip">What are the factors that contribute to HopSkipDrive decision to boost a trip?</a>
+<ul>
+<li><a href="#dependent-variable">Dependent variable</a><br>
+</li>
+<li><a href="#independent-variables">Independent variables</a><br>
+</li>
+</ul></li>
+<li><a href="#what-is-the-optimal-price-per-trip-and-by-how-much-boosted-trips-deviate-from-it">What is the optimal price per trip and by how much boosted trips deviate from it?</a><br>
+</li>
+</ul></li>
+<li><a href="#modeling-the-percentage-deviation-from-the-optimal-price">Modeling the percentage deviation from the optimal price</a>
+<ul>
+<li><a href="#dependent-variable">Dependent variable</a><br>
+</li>
+<li><a href="#independent-variables">Independent variables</a><br>
+</li>
+<li><a href="#elastic-net-regression">Elastic Net Regression</a><br>
+</li>
+<li><a href="#xgboost-regressor">XGBoost Regressor</a><br>
+</li>
+<li><a href="#final-model">Final model</a></li>
+</ul></li>
+</ul>
+</section>
+<section id="prerequisites" class="level2">
+<h2 class="anchored" data-anchor-id="prerequisites">Prerequisites</h2>
+<ul>
+<li>This notebook assumes there is a directory called <code>data/</code> at the same directory level as the notebook and a file called <code>boost_df.csv</code> inside that directory.</li>
+</ul>
+</section>
+<section id="research-questions" class="level2">
+<h2 class="anchored" data-anchor-id="research-questions">Research questions</h2>
+<section id="to-what-extent-can-we-optimize-the-boosts-to-get-rides-claimed-earlier" class="level3">
+<h3 class="anchored" data-anchor-id="to-what-extent-can-we-optimize-the-boosts-to-get-rides-claimed-earlier">To what extent can we optimize the boosts to get rides claimed earlier?</h3>
+<p>Drivers decide when to claim a trip. Their decision depends on several factors, but the trip fare is the most important. HopSkipDrive (HSD) cannot control some of the trip’s characteristics but can control the base trip fare and the subsequent boosts. If the only objective were for HSD to get rides claimed earlier, the solution would be to find the optimal boost that minimizes the time between trips being created and those claimed, given some constraints such as budget. Let’s call this function f(x). However, HSD not only cares about this single objective optimization because it also cares about reducing the average cost of rides, leading to this assignment’s second research question.</p>
+</section>
+<section id="to-what-extent-can-we-optimize-boosts-to-reduce-the-average-cost-of-rides" class="level3">
+<h3 class="anchored" data-anchor-id="to-what-extent-can-we-optimize-boosts-to-reduce-the-average-cost-of-rides">To what extent can we optimize boosts to reduce the average cost of rides?</h3>
+<p>HSD controls the trip fares and boosts. If the only objective was for HSD to reduce the average cost of rides, the solution would be to find the optimal boost that minimizes the boost amount given some constraints. Let’s call this function g(x). Similar to the first question, HSD cares not only about this single objective optimization but also about getting rides claimed earlier, which leads to the third research question.</p>
+</section>
+<section id="to-what-extent-can-we-have-both-1-and-2" class="level3">
+<h3 class="anchored" data-anchor-id="to-what-extent-can-we-have-both-1-and-2">To what extent can we have both 1 and 2?</h3>
+<p>In practice, HSD is interested in a bi-objective optimization: min(f(x), g(x)) given some constraints. There is a natural trade-off between f(x) and g(x), and the set of optimal solutions would help HSD decide which trade-off works better for its business objective. We could use operations research methods to answer the question directly to find optimal solutions where neither f(x) nor g(x) can be further optimized. However, my perspective on this assignment as a data scientist is not to calculate the set of optimal solutions. Instead, I will analyze the boost data to understand the factors that lead drivers to expect higher boost amounts.</p>
+</section>
+</section>
+<section id="documentation-write-up" class="level2">
+<h2 class="anchored" data-anchor-id="documentation-write-up">Documentation &amp; write up</h2>
+<section id="what-are-your-main-recommendations-based-on-the-data" class="level3">
+<h3 class="anchored" data-anchor-id="what-are-your-main-recommendations-based-on-the-data">What are your main recommendations based on the data?</h3>
+<p>The core of my proposal lies in personalization. HSD runs a unique marketplace where it guarantees to meet the demand side of the business. However, drivers decide when to claim a trip. There are segments of drivers with different levels of sensitivity to boost amounts. A machine learning model would allow HSD to find those segments and score them by their likelihood of accepting distinct amounts of boosts. HSD could use those scores in a production model to roll out boosts by segments, starting with the segments that are more likely to accept smaller amounts of boosts. However, the data provided for this assignment does not include driver-specific information. Therefore, I built a toy model of a modified version of my proposal for this assignment: an Elastic Net regression that models the percentage increase in base fare as the dependent variable among trips that received a boost to measure the factors that lead drivers to expect a higher boost amount.</p>
+<ul>
+<li>A few recommendations based on the results of the model:
+<ul>
+<li>Month seasonality is strongly positively related to an expected increase in the base fare amount. I recommend offering minor boosts during the months when drivers’ expectations for significant boosts are lower. I’m not saying what specific months because I engineered month seasonality with sine and cosine transformations and decided not to back-engineer them to actual months to have time to finish the assignment.</li>
+<li>Offer lower boosts in metro areas where the expectation for high boosts is lower, such as DFW or Greensboro. Similarly, markets like DMV and Sacramento expect higher boosts.</li>
+<li>Trips that start at peak hours expect higher boosts. When calculating the base fare of peak-hours trips, consider the trip will likely need a boost.</li>
+<li>Drivers like longer trips, so consider that drivers have a lower expectation for larger boosts when the trip is longer in distance and in time.</li>
+</ul></li>
+<li>General recommendations based on working with this data:
+<ul>
+<li>Invest in acquiring more drivers. From an economic perspective, a larger supply should drive prices down.</li>
+<li>Educate the demand side with analytics about rides. For example, you can share with the demand side from DMV that rides take longer to be claimed in that area, but ultimately, x% of rides are claimed x days before the scheduled start date.</li>
+</ul></li>
+</ul>
+</section>
+<section id="what-other-data-might-you-want-or-need-to-test-assumptions-or-improve-model-performance" class="level3">
+<h3 class="anchored" data-anchor-id="what-other-data-might-you-want-or-need-to-test-assumptions-or-improve-model-performance">What other data might you want or need to test assumptions or improve model performance?</h3>
+<ul>
+<li>I would like to have access to riders’ and drivers’ data. If I had that data, I would have built a toy model to illustrate the proposal I described in the previous questions.</li>
+<li>I would also like to have as much data as possible regarding more years and trips.</li>
+<li>I would also have wanted additional data on the system that decides when a ride will receive a boost. Does an algorithm power it, or is it based on some rules that individuals apply?</li>
+</ul>
+</section>
+<section id="how-confident-are-you-that-the-assumptions-you-made-will-generate-improved-outcomes" class="level3">
+<h3 class="anchored" data-anchor-id="how-confident-are-you-that-the-assumptions-you-made-will-generate-improved-outcomes">How confident are you that the assumptions you made will generate improved outcomes?</h3>
+<ul>
+<li>I am not confident that my assumptions will generate improved outcomes because this is a toy model with limited data developed with a short time limit. With more time and data, I could probably create a model that could potentially improve outcomes. However, instead of focusing on developing an accurate model, my objective for this assignment was to 1) understand the problem, 2) outline a potential solution, 3) clean the code in a Python script to run it in a Docker container to emulate a production setting, 4) and have enough time to document the process and answer the questions.</li>
+<li>Some of the trade-offs I had to make to finish the steps described above in the allocated time are the following: limited exploratory data analysis, dropping rows without detailed investigation, avoiding visualizations, minimal feature engineering, only trying two regression models, not cross-validating results, and developing a model as quickly as possible.</li>
+</ul>
+</section>
+<section id="write-up-a-short-description-of-any-toolkits-or-processes-that-you-believe-would-improve-the-workflow-the-process-or-the-model-performance" class="level3">
+<h3 class="anchored" data-anchor-id="write-up-a-short-description-of-any-toolkits-or-processes-that-you-believe-would-improve-the-workflow-the-process-or-the-model-performance">Write up a short description of any toolkits or processes that you believe would improve the workflow, the process, or the model performance</h3>
+<ul>
+<li>Before improving model performance, I would ensure the performance I’m reporting (R-squared of 50%) is genuine by checking that the model is not violating any assumptions and that there is no target leakage in the features.</li>
+<li>To improve model performance, I would conduct more exploratory analysis to find and engineer additional features, try different algorithms, and spend more time on hyperparameter tuning, among other steps related to model selection.</li>
+<li>To improve the process, I would modularize the code for production. I organized the Python code (model_pipeline.py) in a single script for readability for this assignment. However, in actual production, I would further modularize the model pipeline. I would also migrate all data cleaning to SQL or Spark. I would also define the MLOps pipeline: versioning, monitoring, training cadence, and prediction storage, among other steps.</li>
+<li>To improve the workflow, I would use MLFlow. I intended to use MLFlow for this assignment but ran out of time when building the Docker container. I decided to skip the step and only mention it here.</li>
+</ul>
+</section>
+<section id="assume-that-this-model-is-performant.-what-steps-would-you-take-to-deliver-the-predictions-or-results-routinely-and-at-scale" class="level3">
+<h3 class="anchored" data-anchor-id="assume-that-this-model-is-performant.-what-steps-would-you-take-to-deliver-the-predictions-or-results-routinely-and-at-scale">Assume that this model is performant. What steps would you take to deliver the predictions or results routinely and at scale?</h3>
+<p>I briefly mentioned this in the previous answer. I would create a data pipeline in SQL using dbt to automate the data cleaning and pre-processing steps as much as possible. I would also modularize the Python model pipeline to align with best practices in reproducibility and MLOps. I would use MLFlow (it even has an integration with SageMaker) for MLOps. I would also dockerize the model to prepare and hand it off to the DevOps team. All these processes vary across companies’ needs and resources. In HSD’s case, I would learn about the tech stack and find what works best for the teams.</p>
+</section>
+</section>
+<section id="data-preprocessing-for-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="data-preprocessing-for-analysis">Data preprocessing for analysis</h2>
+<section id="load-the-data" class="level3">
+<h3 class="anchored" data-anchor-id="load-the-data">Load the Data</h3>
+<div id="42a9cf84-e3b9-47b3-ae9e-7579eeb5c09b" class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.read_csv(<span class="st">"data/boost_df.csv"</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>df.head(<span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="2">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">trip_id</th>
+<th data-quarto-table-cell-role="th">cumulative_boost_amount_cents</th>
+<th data-quarto-table-cell-role="th">boost_timestamp</th>
+<th data-quarto-table-cell-role="th">manual_boost</th>
+<th data-quarto-table-cell-role="th">boost_ind</th>
+<th data-quarto-table-cell-role="th">seq_boost_count</th>
+<th data-quarto-table-cell-role="th">single_boost_amount_cents</th>
+<th data-quarto-table-cell-role="th">trip_state</th>
+<th data-quarto-table-cell-role="th">created_at</th>
+<th data-quarto-table-cell-role="th">claimed_at</th>
+<th data-quarto-table-cell-role="th">scheduled_starts_at</th>
+<th data-quarto-table-cell-role="th">scheduled_ends_at</th>
+<th data-quarto-table-cell-role="th">unclaimed_at</th>
+<th data-quarto-table-cell-role="th">trip_completed_at</th>
+<th data-quarto-table-cell-role="th">total_predicted_duration_mins</th>
+<th data-quarto-table-cell-role="th">total_predicted_distance_miles</th>
+<th data-quarto-table-cell-role="th">total_predicted_distance_miles_for_fare</th>
+<th data-quarto-table-cell-role="th">dollars_paid_to_driver</th>
+<th data-quarto-table-cell-role="th">origin_metro_area_name</th>
+<th data-quarto-table-cell-role="th">commute_minutes</th>
+<th data-quarto-table-cell-role="th">commute_distance</th>
+<th data-quarto-table-cell-role="th">is_same_day_ride</th>
+<th data-quarto-table-cell-role="th">trip_starts_during_peak_hours</th>
+<th data-quarto-table-cell-role="th">ever_unclaimed</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>43</td>
+<td>0.0</td>
+<td>NaN</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0.0</td>
+<td>complete</td>
+<td>2023-06-01 17:20:28</td>
+<td>2024-04-29 02:39:17</td>
+<td>2024-05-17 22:25:00</td>
+<td>2024-05-17 23:34:26</td>
+<td>NaN</td>
+<td>2024-05-17 23:30:55</td>
+<td>48.60</td>
+<td>24.88</td>
+<td>24.88</td>
+<td>34.43</td>
+<td>Orlando Metro</td>
+<td>35.78</td>
+<td>4.88</td>
+<td>False</td>
+<td>True</td>
+<td>0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>58</td>
+<td>492.1</td>
+<td>2024-05-29 14:10:23</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>492.1</td>
+<td>complete</td>
+<td>2023-06-05 15:37:22</td>
+<td>2024-05-29 14:40:50</td>
+<td>2024-05-29 15:29:10</td>
+<td>2024-05-29 16:10:00</td>
+<td>2024-05-29 14:06:11</td>
+<td>2024-05-29 16:10:33</td>
+<td>28.58</td>
+<td>19.19</td>
+<td>19.19</td>
+<td>34.73</td>
+<td>Greensboro Metro</td>
+<td>29.92</td>
+<td>8.90</td>
+<td>False</td>
+<td>True</td>
+<td>1</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>58</td>
+<td>877.1</td>
+<td>2024-05-29 14:37:26</td>
+<td>1</td>
+<td>1</td>
+<td>2</td>
+<td>385.0</td>
+<td>complete</td>
+<td>2023-06-05 15:37:22</td>
+<td>2024-05-29 14:40:50</td>
+<td>2024-05-29 15:29:10</td>
+<td>2024-05-29 16:10:00</td>
+<td>2024-05-29 14:06:11</td>
+<td>2024-05-29 16:10:33</td>
+<td>28.58</td>
+<td>19.19</td>
+<td>19.19</td>
+<td>34.73</td>
+<td>Greensboro Metro</td>
+<td>29.92</td>
+<td>8.90</td>
+<td>False</td>
+<td>True</td>
+<td>1</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>62</td>
+<td>588.0</td>
+<td>2024-06-11 14:10:06</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>588.0</td>
+<td>complete</td>
+<td>2023-06-05 15:37:22</td>
+<td>2024-06-11 14:15:20</td>
+<td>2024-06-11 15:01:05</td>
+<td>2024-06-11 15:40:00</td>
+<td>2024-06-11 14:06:10</td>
+<td>2024-06-11 15:47:50</td>
+<td>27.24</td>
+<td>19.19</td>
+<td>19.19</td>
+<td>31.37</td>
+<td>Greensboro Metro</td>
+<td>14.50</td>
+<td>2.04</td>
+<td>False</td>
+<td>True</td>
+<td>1</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>72</td>
+<td>0.0</td>
+<td>NaN</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0.0</td>
+<td>complete</td>
+<td>2023-06-05 15:37:43</td>
+<td>2024-05-28 17:37:30</td>
+<td>2024-05-28 21:45:00</td>
+<td>2024-05-28 22:29:17</td>
+<td>2024-05-28 07:46:48</td>
+<td>2024-05-28 22:29:06</td>
+<td>31.00</td>
+<td>19.40</td>
+<td>19.40</td>
+<td>32.83</td>
+<td>Greensboro Metro</td>
+<td>32.41</td>
+<td>20.50</td>
+<td>False</td>
+<td>True</td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</section>
+<section id="clean-the-data" class="level3">
+<h3 class="anchored" data-anchor-id="clean-the-data">Clean the data</h3>
+<ul>
+<li>I’ll start by casting date columns to datetime to be able to manipulate the dates.</li>
+</ul>
+<div id="22313ef0-8c28-47bb-b05a-066a080d78b9" class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>date_columns <span class="op">=</span> [</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"boost_timestamp"</span>, <span class="st">"created_at"</span>, <span class="st">"claimed_at"</span>,  <span class="st">"scheduled_starts_at"</span>,</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"scheduled_ends_at"</span>, <span class="st">"unclaimed_at"</span>, <span class="st">"trip_completed_at"</span>]</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> col <span class="kw">in</span> date_columns:</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    df[col] <span class="op">=</span> pd.to_datetime(df[col], <span class="bu">format</span><span class="op">=</span><span class="st">"ISO8601"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="f4102191-1c11-432b-b075-ea962fb87b18" class="cell" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># There are 5 trips with null values for commute distance. The number is so </span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co"># small that I will just drop those trips</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> df[df.trip_id.isin(df[df.commute_distance.notnull()].trip_id.values)]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="2fe06ff7-b1cf-4a2d-9e2d-5d7786191f23" class="cell" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># All trips were completed so this column adds no information, I will drop it</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> (df.trip_state <span class="op">==</span> <span class="st">"complete"</span>).<span class="bu">sum</span>() <span class="op">==</span> df.shape[<span class="dv">0</span>]</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> df.drop(<span class="st">"trip_state"</span>, axis<span class="op">=</span><span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="4f9d14bd-ab94-46fc-8241-cb59f5a34038" class="cell" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># All trips have been claimed</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> df.claimed_at.isnull().<span class="bu">sum</span>() <span class="op">==</span> <span class="dv">0</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<ul>
+<li>There are boost events where <code>single_boost_amount_cents</code> is 0 cents. To simplify the cleaning process, I will assume that boost events with <code>boost_ind == 1</code> and <code>single_boost_amount_cents == 0</code> are invalid, and I will drop them. With more time, I would have looked more at this decision, but I think it’s fair since the number of trips dropped is not too large (~300).</li>
+</ul>
+<div id="cb885229-074c-43ed-8d98-fa38203139f2" class="cell" data-execution_count="7">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>trips_boost_yes_amount_zero <span class="op">=</span> df[(df.boost_ind <span class="op">==</span> <span class="dv">1</span>) <span class="op">&amp;</span> (df.single_boost_amount_cents <span class="op">==</span> <span class="dv">0</span>)].trip_id.values</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> df[<span class="op">~</span>df.trip_id.isin(trips_boost_yes_amount_zero)]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<ul>
+<li>Drop the seven trips where the claimed date is greater than the trip scheduled start. It’s a rare event that returns negative numbers when calculating days between claimed date and scheduled start date. I’ll drop these trips to simplify the cleaning process.</li>
+</ul>
+<div id="1a13e88f-bca3-46c1-848f-8ebd36b930e4" class="cell" data-execution_count="8">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> df[df.scheduled_starts_at <span class="op">&gt;</span> df.claimed_at]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="63ed6fd3-1101-4d06-9cbb-444c810af58f" class="cell" data-execution_count="9">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Total number of rows: </span><span class="sc">{</span>df<span class="sc">.</span>shape[<span class="dv">0</span>]<span class="sc">:,}</span><span class="ss">"</span>)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Total number of trips: </span><span class="sc">{</span>df<span class="sc">.</span>trip_id<span class="sc">.</span>nunique()<span class="sc">:,}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Total number of rows: 21,031
+Total number of trips: 17,235</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="exploratory-data-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="exploratory-data-analysis">Exploratory Data Analysis</h2>
+<section id="what-are-the-factors-that-contribute-to-hopskipdrive-decision-to-boost-a-trip" class="level3">
+<h3 class="anchored" data-anchor-id="what-are-the-factors-that-contribute-to-hopskipdrive-decision-to-boost-a-trip">What are the factors that contribute to HopSkipDrive decision to boost a trip?</h3>
+<ul>
+<li>This is not the assignment’s research question, but I think it is important to analyze it before starting with the research questions.</li>
+<li>The decision to boost a trip is not a natural pattern in the data but rather the result of a system already built (I assume) by HSD. Therefore, this first step in the analysis aims to understand the factors that are considered by that system to boost a trip. Intuitively, I would assume HSD boosts trips when the scheduled start date is closer and the trip continues unclaimed.</li>
+<li>In modeling terms, the dependent variable is <code>boost_ind</code> and the independent variables are the attributes of a trip known before the trip was boosted or started. For example, I can use <code>commute_distance</code> because the distance from the driver’s origin (assuming it is fixed, like their house) is known before the trip was boosted. However, I cannot use the count of times the trip was boosted because it would introduce target leakage. After all, only the boosted trips would have a count greater than zero.</li>
+<li>In this section, I briefly analyze the relationship between a few independent variables and their effect on HSD’s decision to boost the trip. After that, I fit an XGBoost Classifier to quantify the contribution of each independent variable to the dependent variable.</li>
+</ul>
+<section id="dependent-variable" class="level4">
+<h4 class="anchored" data-anchor-id="dependent-variable">Dependent variable</h4>
+<ul>
+<li>Around 43% of the trips were boosted and 57% were not boosted.</li>
+</ul>
+<div id="b8772063-7429-4750-b120-51f9b9d54a06" class="cell" data-execution_count="10">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>cnt_trips <span class="op">=</span> df.trip_id.nunique()</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>cnt_boost <span class="op">=</span> df[df.boost_ind <span class="op">==</span> <span class="dv">1</span>].trip_id.nunique()</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>boosted_pct <span class="op">=</span> (cnt_boost <span class="op">/</span> cnt_trips) <span class="op">*</span> <span class="dv">100</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Total trips: </span><span class="sc">{</span>cnt_trips<span class="sc">:,}</span><span class="ss">; boosted trips: </span><span class="sc">{</span>cnt_boost<span class="sc">:,}</span><span class="ss">; percentage boosted: </span><span class="sc">{</span>boosted_pct<span class="sc">:.2f}</span><span class="ss">%"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Total trips: 17,235; boosted trips: 7,245; percentage boosted: 42.04%</code></pre>
+</div>
+</div>
+</section>
+<section id="independent-variables" class="level4">
+<h4 class="anchored" data-anchor-id="independent-variables">Independent variables</h4>
+<ul>
+<li>Considering that the data provided is denormalized at the <code>trip_id</code> level, there are columns with values repeated for each trip_id, such as <code>commute_distance</code>. At this step, I am not analyzing anything related to boosts, so I can aggregate at the <code>trip_id</code> level, taking the maximum of those columns because all their rows for a given <code>trip_id</code> have the same value.</li>
+</ul>
+<div id="bdb8a125-847f-4fbc-be94-698a3d0de418" class="cell" data-execution_count="11">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>cols_agg <span class="op">=</span> [<span class="st">"boost_ind"</span>, <span class="st">"created_at"</span>, <span class="st">"claimed_at"</span>, <span class="st">"scheduled_starts_at"</span>,</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>            <span class="st">"scheduled_ends_at"</span>,  <span class="st">"trip_completed_at"</span>, <span class="st">"unclaimed_at"</span>, </span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>            <span class="st">"total_predicted_duration_mins"</span>, <span class="st">"total_predicted_distance_miles_for_fare"</span>,</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>            <span class="st">"dollars_paid_to_driver"</span>, <span class="st">"origin_metro_area_name"</span>, <span class="st">"commute_minutes"</span>,</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>            <span class="st">"commute_distance"</span>,  <span class="st">"is_same_day_ride"</span>,  <span class="st">"trip_starts_during_peak_hours"</span>, </span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>            <span class="st">"ever_unclaimed"</span>]</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>g_agg <span class="op">=</span> df.groupby(<span class="st">"trip_id"</span>, as_index<span class="op">=</span><span class="va">False</span>)[cols_agg].<span class="bu">max</span>()</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>g_agg.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="11">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">trip_id</th>
+<th data-quarto-table-cell-role="th">boost_ind</th>
+<th data-quarto-table-cell-role="th">created_at</th>
+<th data-quarto-table-cell-role="th">claimed_at</th>
+<th data-quarto-table-cell-role="th">scheduled_starts_at</th>
+<th data-quarto-table-cell-role="th">scheduled_ends_at</th>
+<th data-quarto-table-cell-role="th">trip_completed_at</th>
+<th data-quarto-table-cell-role="th">unclaimed_at</th>
+<th data-quarto-table-cell-role="th">total_predicted_duration_mins</th>
+<th data-quarto-table-cell-role="th">total_predicted_distance_miles_for_fare</th>
+<th data-quarto-table-cell-role="th">dollars_paid_to_driver</th>
+<th data-quarto-table-cell-role="th">origin_metro_area_name</th>
+<th data-quarto-table-cell-role="th">commute_minutes</th>
+<th data-quarto-table-cell-role="th">commute_distance</th>
+<th data-quarto-table-cell-role="th">is_same_day_ride</th>
+<th data-quarto-table-cell-role="th">trip_starts_during_peak_hours</th>
+<th data-quarto-table-cell-role="th">ever_unclaimed</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>43</td>
+<td>0</td>
+<td>2023-06-01 17:20:28</td>
+<td>2024-04-29 02:39:17</td>
+<td>2024-05-17 22:25:00</td>
+<td>2024-05-17 23:34:26</td>
+<td>2024-05-17 23:30:55</td>
+<td>NaT</td>
+<td>48.60</td>
+<td>24.88</td>
+<td>34.43</td>
+<td>Orlando Metro</td>
+<td>35.78</td>
+<td>4.88</td>
+<td>False</td>
+<td>True</td>
+<td>0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>58</td>
+<td>1</td>
+<td>2023-06-05 15:37:22</td>
+<td>2024-05-29 14:40:50</td>
+<td>2024-05-29 15:29:10</td>
+<td>2024-05-29 16:10:00</td>
+<td>2024-05-29 16:10:33</td>
+<td>2024-05-29 14:06:11</td>
+<td>28.58</td>
+<td>19.19</td>
+<td>34.73</td>
+<td>Greensboro Metro</td>
+<td>29.92</td>
+<td>8.90</td>
+<td>False</td>
+<td>True</td>
+<td>1</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>62</td>
+<td>1</td>
+<td>2023-06-05 15:37:22</td>
+<td>2024-06-11 14:15:20</td>
+<td>2024-06-11 15:01:05</td>
+<td>2024-06-11 15:40:00</td>
+<td>2024-06-11 15:47:50</td>
+<td>2024-06-11 14:06:10</td>
+<td>27.24</td>
+<td>19.19</td>
+<td>31.37</td>
+<td>Greensboro Metro</td>
+<td>14.50</td>
+<td>2.04</td>
+<td>False</td>
+<td>True</td>
+<td>1</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>72</td>
+<td>0</td>
+<td>2023-06-05 15:37:43</td>
+<td>2024-05-28 17:37:30</td>
+<td>2024-05-28 21:45:00</td>
+<td>2024-05-28 22:29:17</td>
+<td>2024-05-28 22:29:06</td>
+<td>2024-05-28 07:46:48</td>
+<td>31.00</td>
+<td>19.40</td>
+<td>32.83</td>
+<td>Greensboro Metro</td>
+<td>32.41</td>
+<td>20.50</td>
+<td>False</td>
+<td>True</td>
+<td>1</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>74</td>
+<td>1</td>
+<td>2023-06-05 15:37:43</td>
+<td>2024-06-10 21:02:18</td>
+<td>2024-06-10 21:45:00</td>
+<td>2024-06-10 22:29:17</td>
+<td>2024-06-10 22:47:29</td>
+<td>2024-06-10 20:50:13</td>
+<td>31.00</td>
+<td>19.40</td>
+<td>37.38</td>
+<td>Greensboro Metro</td>
+<td>35.17</td>
+<td>18.91</td>
+<td>False</td>
+<td>True</td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<ul>
+<li>The first set of features I’m interested in exploring is measuring the time between key dates: days between trip created and trip claimed time, days between trip created and trip scheduled start time, and days between trip claimed and trip scheduled time.</li>
+<li>It looks like the three variables could considerably affect HSD’s decision to boost the trip.</li>
+<li>From the difference in means grouped by the dependent variable, I think the story is that boosted trips take less time to be claimed and are closer to the scheduled start time than trips not boosted by a factor of 10 to 15%. Most importantly, trips that were boosted were claimed on average 0.06 days before the scheduled start time, while trips that were not boosted were claimed on average 6 days before the scheduled start time.</li>
+<li>Considering the magnitude of the difference in the days between the claimed trip and the scheduled time, I suspect this is the key factor for HSD to boost a trip. In other words, when the trip is closer to the scheduled time without being claimed, it is considerably more likely to be boosted by HSD.</li>
+</ul>
+<div id="57793f80-98a4-484c-9cd8-efa4edc03e6b" class="cell" data-execution_count="12">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>g_agg[<span class="st">"days_btw_created_and_claimed"</span>] <span class="op">=</span> (</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>    g_agg.claimed_at <span class="op">-</span> g_agg.created_at) <span class="op">/</span> np.timedelta64(<span class="dv">1</span>, <span class="st">'h'</span>) <span class="op">/</span> <span class="dv">24</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>g_agg[<span class="st">"days_btw_created_and_schedstart"</span>] <span class="op">=</span> (</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    g_agg.scheduled_starts_at <span class="op">-</span> g_agg.created_at) <span class="op">/</span> np.timedelta64(<span class="dv">1</span>, <span class="st">'h'</span>) <span class="op">/</span> <span class="dv">24</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>g_agg[<span class="st">"days_btw_claimed_and_schedstart"</span>] <span class="op">=</span> (</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>    g_agg.scheduled_starts_at <span class="op">-</span> g_agg.claimed_at) <span class="op">/</span> np.timedelta64(<span class="dv">1</span>, <span class="st">'h'</span>) <span class="op">/</span> <span class="dv">24</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>time_cols <span class="op">=</span> [<span class="st">"boost_ind"</span>, <span class="st">"days_btw_created_and_claimed"</span>, <span class="st">"days_btw_created_and_schedstart"</span>, </span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>             <span class="st">"days_btw_claimed_and_schedstart"</span>]</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>g_agg[time_cols].groupby(<span class="st">"boost_ind"</span>).describe()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="12">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th colspan="8" data-quarto-table-cell-role="th" data-halign="left">days_btw_created_and_claimed</th>
+<th colspan="8" data-quarto-table-cell-role="th" data-halign="left">days_btw_created_and_schedstart</th>
+<th colspan="8" data-quarto-table-cell-role="th" data-halign="left">days_btw_claimed_and_schedstart</th>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">count</th>
+<th data-quarto-table-cell-role="th">mean</th>
+<th data-quarto-table-cell-role="th">std</th>
+<th data-quarto-table-cell-role="th">min</th>
+<th data-quarto-table-cell-role="th">25%</th>
+<th data-quarto-table-cell-role="th">50%</th>
+<th data-quarto-table-cell-role="th">75%</th>
+<th data-quarto-table-cell-role="th">max</th>
+<th data-quarto-table-cell-role="th">count</th>
+<th data-quarto-table-cell-role="th">mean</th>
+<th data-quarto-table-cell-role="th">std</th>
+<th data-quarto-table-cell-role="th">min</th>
+<th data-quarto-table-cell-role="th">25%</th>
+<th data-quarto-table-cell-role="th">50%</th>
+<th data-quarto-table-cell-role="th">75%</th>
+<th data-quarto-table-cell-role="th">max</th>
+<th data-quarto-table-cell-role="th">count</th>
+<th data-quarto-table-cell-role="th">mean</th>
+<th data-quarto-table-cell-role="th">std</th>
+<th data-quarto-table-cell-role="th">min</th>
+<th data-quarto-table-cell-role="th">25%</th>
+<th data-quarto-table-cell-role="th">50%</th>
+<th data-quarto-table-cell-role="th">75%</th>
+<th data-quarto-table-cell-role="th">max</th>
+</tr>
+<tr class="header">
+<th data-quarto-table-cell-role="th">boost_ind</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>9990.0</td>
+<td>93.915687</td>
+<td>99.352381</td>
+<td>0.000104</td>
+<td>7.988938</td>
+<td>49.147604</td>
+<td>175.127054</td>
+<td>363.199884</td>
+<td>9990.0</td>
+<td>100.598898</td>
+<td>100.369247</td>
+<td>0.001389</td>
+<td>15.122245</td>
+<td>55.979740</td>
+<td>182.160839</td>
+<td>367.053009</td>
+<td>9990.0</td>
+<td>6.683211</td>
+<td>8.415536</td>
+<td>0.000937</td>
+<td>0.545625</td>
+<td>2.076013</td>
+<td>10.670932</td>
+<td>30.939884</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>7245.0</td>
+<td>81.808711</td>
+<td>92.438768</td>
+<td>0.000093</td>
+<td>12.590787</td>
+<td>36.184144</td>
+<td>126.780590</td>
+<td>375.237442</td>
+<td>7245.0</td>
+<td>81.845330</td>
+<td>92.439651</td>
+<td>0.009734</td>
+<td>12.630394</td>
+<td>36.223333</td>
+<td>126.815613</td>
+<td>375.255058</td>
+<td>7245.0</td>
+<td>0.036619</td>
+<td>0.008803</td>
+<td>0.001076</td>
+<td>0.032292</td>
+<td>0.035370</td>
+<td>0.042245</td>
+<td>0.285058</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<ul>
+<li>Looking at the cross tabulation of the variables <code>ever_unclaimed</code> and <code>boost_ind</code>, it is clear that when <code>trip_id</code> is true for <code>ever_unclaimed</code>, it is considerably more likely to be boosted. That makes sense because HSD must have rules to decide when a <code>trip_id</code> needs to be boosted and being <code>ever_unclaimed</code> must be one of the main variables.</li>
+<li>However, I wonder what factors make HSD decide a <code>trip_id</code> is <code>unclaimed_at</code> at a given timestamp. I thought it could be determined by a fixed number of days/hours before the trip scheduled date, but a glance at the distribution showed that was not the case.</li>
+</ul>
+<div id="991a3d44-32fb-428a-8d40-88bedf729e9c" class="cell" data-execution_count="13">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>pd.crosstab(g_agg.boost_ind, g_agg.ever_unclaimed, margins<span class="op">=</span><span class="va">True</span>, margins_name<span class="op">=</span><span class="st">"Total"</span>, normalize<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="13">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th">ever_unclaimed</th>
+<th data-quarto-table-cell-role="th">0</th>
+<th data-quarto-table-cell-role="th">1</th>
+<th data-quarto-table-cell-role="th">Total</th>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">boost_ind</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>0.392167</td>
+<td>0.187467</td>
+<td>0.579634</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>0.137221</td>
+<td>0.283145</td>
+<td>0.420366</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Total</td>
+<td>0.529388</td>
+<td>0.470612</td>
+<td>1.000000</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<ul>
+<li>I am also curious if the dynamics to decide if a trip needs to be boosted change based on <code>origin_metro_area_name</code>.</li>
+<li>A quick look at the distribution of <code>boost_ind</code> across metro areas shows some interesting differences, such as DFW having most of the trips not boosted.</li>
+</ul>
+<div id="44cb34a8-f5ff-40b8-acf6-a95fc9d18fb4" class="cell" data-execution_count="14">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"There are </span><span class="sc">{</span>g_agg<span class="sc">.</span>origin_metro_area_name<span class="sc">.</span>nunique()<span class="sc">:,}</span><span class="ss"> unique metro areas"</span>)</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>pd.crosstab(g_agg.boost_ind, g_agg.origin_metro_area_name, </span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>            margins<span class="op">=</span><span class="va">True</span>, margins_name<span class="op">=</span><span class="st">"Total"</span>, normalize<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>There are 27 unique metro areas</code></pre>
+</div>
+<div class="cell-output cell-output-display" data-execution_count="14">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th">origin_metro_area_name</th>
+<th data-quarto-table-cell-role="th">ABQ Metro</th>
+<th data-quarto-table-cell-role="th">Austin Metro</th>
+<th data-quarto-table-cell-role="th">Bridgeport Metro</th>
+<th data-quarto-table-cell-role="th">Cleveland Metro</th>
+<th data-quarto-table-cell-role="th">Columbia Metro</th>
+<th data-quarto-table-cell-role="th">DFW</th>
+<th data-quarto-table-cell-role="th">DMV</th>
+<th data-quarto-table-cell-role="th">Greater Boston</th>
+<th data-quarto-table-cell-role="th">Greater Seattle</th>
+<th data-quarto-table-cell-role="th">Greensboro Metro</th>
+<th data-quarto-table-cell-role="th">Hampton Roads</th>
+<th data-quarto-table-cell-role="th">Honolulu Metro</th>
+<th data-quarto-table-cell-role="th">KC Metro</th>
+<th data-quarto-table-cell-role="th">Milwaukee Metro</th>
+<th data-quarto-table-cell-role="th">NOLA Metro</th>
+<th data-quarto-table-cell-role="th">Nashville Metro</th>
+<th data-quarto-table-cell-role="th">OKC Metro</th>
+<th data-quarto-table-cell-role="th">Omaha Metro</th>
+<th data-quarto-table-cell-role="th">Orlando Metro</th>
+<th data-quarto-table-cell-role="th">Philly Metro</th>
+<th data-quarto-table-cell-role="th">Providence Metro</th>
+<th data-quarto-table-cell-role="th">Richmond Metro</th>
+<th data-quarto-table-cell-role="th">SD Metro</th>
+<th data-quarto-table-cell-role="th">Sacramento Metro</th>
+<th data-quarto-table-cell-role="th">Sarasota Metro</th>
+<th data-quarto-table-cell-role="th">Tucson Metro</th>
+<th data-quarto-table-cell-role="th">Worcester Metro</th>
+<th data-quarto-table-cell-role="th">Total</th>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">boost_ind</th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>0.000348</td>
+<td>0.015086</td>
+<td>0.001393</td>
+<td>0.004932</td>
+<td>0.000116</td>
+<td>0.120395</td>
+<td>0.003481</td>
+<td>0.014563</td>
+<td>0.005396</td>
+<td>0.051755</td>
+<td>0.015782</td>
+<td>0.005396</td>
+<td>0.007253</td>
+<td>0.004352</td>
+<td>0.000348</td>
+<td>0.01027</td>
+<td>0.016652</td>
+<td>0.005048</td>
+<td>0.147317</td>
+<td>0.005744</td>
+<td>0.000580</td>
+<td>0.008993</td>
+<td>0.003597</td>
+<td>0.090165</td>
+<td>0.001276</td>
+<td>0.000696</td>
+<td>0.038700</td>
+<td>0.579634</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>0.000464</td>
+<td>0.018683</td>
+<td>0.001857</td>
+<td>0.002611</td>
+<td>0.000116</td>
+<td>0.031738</td>
+<td>0.017348</td>
+<td>0.018625</td>
+<td>0.007079</td>
+<td>0.047752</td>
+<td>0.019669</td>
+<td>0.001973</td>
+<td>0.005570</td>
+<td>0.006847</td>
+<td>0.000522</td>
+<td>0.01201</td>
+<td>0.014099</td>
+<td>0.006730</td>
+<td>0.119988</td>
+<td>0.003133</td>
+<td>0.000870</td>
+<td>0.007253</td>
+<td>0.005686</td>
+<td>0.036263</td>
+<td>0.001741</td>
+<td>0.000290</td>
+<td>0.031448</td>
+<td>0.420366</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Total</td>
+<td>0.000812</td>
+<td>0.033768</td>
+<td>0.003249</td>
+<td>0.007543</td>
+<td>0.000232</td>
+<td>0.152132</td>
+<td>0.020830</td>
+<td>0.033188</td>
+<td>0.012475</td>
+<td>0.099507</td>
+<td>0.035451</td>
+<td>0.007369</td>
+<td>0.012823</td>
+<td>0.011198</td>
+<td>0.000870</td>
+<td>0.02228</td>
+<td>0.030751</td>
+<td>0.011778</td>
+<td>0.267305</td>
+<td>0.008877</td>
+<td>0.001451</td>
+<td>0.016246</td>
+<td>0.009283</td>
+<td>0.126429</td>
+<td>0.003017</td>
+<td>0.000986</td>
+<td>0.070148</td>
+<td>1.000000</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<ul>
+<li>To use <code>origin_metro_area_name</code> in the model, I will make a one-hot-encoding of the metro area.</li>
+</ul>
+<div id="6cb769be-211e-4740-bbcd-ad7196db5165" class="cell" data-execution_count="15">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>g_agg[<span class="st">"origin_metro_area_name"</span>] <span class="op">=</span> g_agg.origin_metro_area_name.<span class="bu">str</span>.lower().<span class="bu">str</span>.replace(<span class="st">" "</span>,<span class="st">""</span>)</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>g_agg <span class="op">=</span> pd.get_dummies(g_agg, dtype<span class="op">=</span><span class="bu">int</span>, prefix<span class="op">=</span><span class="st">""</span>, prefix_sep<span class="op">=</span><span class="st">""</span>)</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>g_agg.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="15">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">trip_id</th>
+<th data-quarto-table-cell-role="th">boost_ind</th>
+<th data-quarto-table-cell-role="th">created_at</th>
+<th data-quarto-table-cell-role="th">claimed_at</th>
+<th data-quarto-table-cell-role="th">scheduled_starts_at</th>
+<th data-quarto-table-cell-role="th">scheduled_ends_at</th>
+<th data-quarto-table-cell-role="th">trip_completed_at</th>
+<th data-quarto-table-cell-role="th">unclaimed_at</th>
+<th data-quarto-table-cell-role="th">total_predicted_duration_mins</th>
+<th data-quarto-table-cell-role="th">total_predicted_distance_miles_for_fare</th>
+<th data-quarto-table-cell-role="th">dollars_paid_to_driver</th>
+<th data-quarto-table-cell-role="th">commute_minutes</th>
+<th data-quarto-table-cell-role="th">commute_distance</th>
+<th data-quarto-table-cell-role="th">is_same_day_ride</th>
+<th data-quarto-table-cell-role="th">trip_starts_during_peak_hours</th>
+<th data-quarto-table-cell-role="th">ever_unclaimed</th>
+<th data-quarto-table-cell-role="th">days_btw_created_and_claimed</th>
+<th data-quarto-table-cell-role="th">days_btw_created_and_schedstart</th>
+<th data-quarto-table-cell-role="th">days_btw_claimed_and_schedstart</th>
+<th data-quarto-table-cell-role="th">abqmetro</th>
+<th data-quarto-table-cell-role="th">austinmetro</th>
+<th data-quarto-table-cell-role="th">bridgeportmetro</th>
+<th data-quarto-table-cell-role="th">clevelandmetro</th>
+<th data-quarto-table-cell-role="th">columbiametro</th>
+<th data-quarto-table-cell-role="th">dfw</th>
+<th data-quarto-table-cell-role="th">dmv</th>
+<th data-quarto-table-cell-role="th">greaterboston</th>
+<th data-quarto-table-cell-role="th">greaterseattle</th>
+<th data-quarto-table-cell-role="th">greensborometro</th>
+<th data-quarto-table-cell-role="th">hamptonroads</th>
+<th data-quarto-table-cell-role="th">honolulumetro</th>
+<th data-quarto-table-cell-role="th">kcmetro</th>
+<th data-quarto-table-cell-role="th">milwaukeemetro</th>
+<th data-quarto-table-cell-role="th">nashvillemetro</th>
+<th data-quarto-table-cell-role="th">nolametro</th>
+<th data-quarto-table-cell-role="th">okcmetro</th>
+<th data-quarto-table-cell-role="th">omahametro</th>
+<th data-quarto-table-cell-role="th">orlandometro</th>
+<th data-quarto-table-cell-role="th">phillymetro</th>
+<th data-quarto-table-cell-role="th">providencemetro</th>
+<th data-quarto-table-cell-role="th">richmondmetro</th>
+<th data-quarto-table-cell-role="th">sacramentometro</th>
+<th data-quarto-table-cell-role="th">sarasotametro</th>
+<th data-quarto-table-cell-role="th">sdmetro</th>
+<th data-quarto-table-cell-role="th">tucsonmetro</th>
+<th data-quarto-table-cell-role="th">worcestermetro</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>43</td>
+<td>0</td>
+<td>2023-06-01 17:20:28</td>
+<td>2024-04-29 02:39:17</td>
+<td>2024-05-17 22:25:00</td>
+<td>2024-05-17 23:34:26</td>
+<td>2024-05-17 23:30:55</td>
+<td>NaT</td>
+<td>48.60</td>
+<td>24.88</td>
+<td>34.43</td>
+<td>35.78</td>
+<td>4.88</td>
+<td>False</td>
+<td>True</td>
+<td>0</td>
+<td>332.388067</td>
+<td>351.211481</td>
+<td>18.823414</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>58</td>
+<td>1</td>
+<td>2023-06-05 15:37:22</td>
+<td>2024-05-29 14:40:50</td>
+<td>2024-05-29 15:29:10</td>
+<td>2024-05-29 16:10:00</td>
+<td>2024-05-29 16:10:33</td>
+<td>2024-05-29 14:06:11</td>
+<td>28.58</td>
+<td>19.19</td>
+<td>34.73</td>
+<td>29.92</td>
+<td>8.90</td>
+<td>False</td>
+<td>True</td>
+<td>1</td>
+<td>358.960741</td>
+<td>358.994306</td>
+<td>0.033565</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>62</td>
+<td>1</td>
+<td>2023-06-05 15:37:22</td>
+<td>2024-06-11 14:15:20</td>
+<td>2024-06-11 15:01:05</td>
+<td>2024-06-11 15:40:00</td>
+<td>2024-06-11 15:47:50</td>
+<td>2024-06-11 14:06:10</td>
+<td>27.24</td>
+<td>19.19</td>
+<td>31.37</td>
+<td>14.50</td>
+<td>2.04</td>
+<td>False</td>
+<td>True</td>
+<td>1</td>
+<td>371.943032</td>
+<td>371.974803</td>
+<td>0.031771</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>72</td>
+<td>0</td>
+<td>2023-06-05 15:37:43</td>
+<td>2024-05-28 17:37:30</td>
+<td>2024-05-28 21:45:00</td>
+<td>2024-05-28 22:29:17</td>
+<td>2024-05-28 22:29:06</td>
+<td>2024-05-28 07:46:48</td>
+<td>31.00</td>
+<td>19.40</td>
+<td>32.83</td>
+<td>32.41</td>
+<td>20.50</td>
+<td>False</td>
+<td>True</td>
+<td>1</td>
+<td>358.083183</td>
+<td>358.255058</td>
+<td>0.171875</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>74</td>
+<td>1</td>
+<td>2023-06-05 15:37:43</td>
+<td>2024-06-10 21:02:18</td>
+<td>2024-06-10 21:45:00</td>
+<td>2024-06-10 22:29:17</td>
+<td>2024-06-10 22:47:29</td>
+<td>2024-06-10 20:50:13</td>
+<td>31.00</td>
+<td>19.40</td>
+<td>37.38</td>
+<td>35.17</td>
+<td>18.91</td>
+<td>False</td>
+<td>True</td>
+<td>1</td>
+<td>371.225405</td>
+<td>371.255058</td>
+<td>0.029653</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<ul>
+<li>The final step before fitting the model is select the final set of independent variables and the dependent variable.</li>
+</ul>
+<div id="371e9027-8695-4f1d-9070-77de8ba59824" class="cell" data-execution_count="16">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>ind_cols <span class="op">=</span> [col <span class="cf">for</span> col <span class="kw">in</span> g_agg <span class="cf">if</span> <span class="st">"_at"</span> <span class="kw">not</span> <span class="kw">in</span> col <span class="kw">and</span> col <span class="kw">not</span> <span class="kw">in</span> [<span class="st">"trip_id"</span>, <span class="st">"boost_ind"</span>]]</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>X <span class="op">=</span> g_agg[ind_cols]</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> g_agg[<span class="st">'boost_ind'</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<ul>
+<li>As mentioned, I will use an XGBoost Classifier because it automatically handles interactions, handles multicollinearity, and does not require scaling, so preprocessing is minimal. This is not necessarily the best choice because, given the nature of the data, I did not take the time to consider additional models. Instead, I wanted a quick model to understand the feature’s influence on the dependent variable.</li>
+</ul>
+<div id="b9c5e07d-049a-484a-a242-20785a74866d" class="cell" data-execution_count="17">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Split the data</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>X_train, X_test, y_train, y_test <span class="op">=</span> train_test_split(</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    X, y, test_size<span class="op">=</span><span class="fl">0.2</span>, random_state<span class="op">=</span><span class="dv">42</span>, stratify<span class="op">=</span>y)</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit the model</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>xgbc <span class="op">=</span> XGBClassifier(eval_metric<span class="op">=</span><span class="st">'logloss'</span>, random_state<span class="op">=</span><span class="dv">99</span>)</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>xgbc.fit(X_train, y_train)</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Predict and get probabilities</span></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>y_pred <span class="op">=</span> xgbc.predict(X_test)</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>y_proba <span class="op">=</span> xgbc.predict_proba(X_test)[:, <span class="dv">1</span>]</span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Get classification metrics</span></span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>accuracy <span class="op">=</span> accuracy_score(y_test, y_pred)</span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>precision <span class="op">=</span> precision_score(y_test, y_pred)</span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>recall <span class="op">=</span> recall_score(y_test, y_pred)</span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>f1 <span class="op">=</span> f1_score(y_test, y_pred)</span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>roc_auc <span class="op">=</span> roc_auc_score(y_test, y_proba)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<ul>
+<li>The model’s performance is overestimated and clearly shows fundamental feature problems, such as target leakage. For that reason and in the interest of time, I won’t bother interpreting the classification metrics. However, the results help me further understand how HSD decides a trip needs to be boosted.</li>
+<li>The model results show that one of the variables (days between claimed time and scheduled start time) drives most of the HSD decision to boost a trip. Running the model just with that independent variable yields virtually the same results.</li>
+<li>This first analysis helped me understand that the key driver for HSD to boost a trip is that the trip is coming up and has not been claimed. This was intuitive, but I wanted to see it in the data.</li>
+</ul>
+<div id="3ee5c779-ddbb-42fc-b1ac-386a66676698" class="cell" data-execution_count="18">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Print performance metrics</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Accuracy: </span><span class="sc">{</span>accuracy<span class="sc">:.2f}</span><span class="ss">"</span>)</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Precision: </span><span class="sc">{</span>precision<span class="sc">:.2f}</span><span class="ss">"</span>)</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Recall: </span><span class="sc">{</span>recall<span class="sc">:.2f}</span><span class="ss">"</span>)</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"F1-score: </span><span class="sc">{</span>f1<span class="sc">:.2f}</span><span class="ss">"</span>)</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"ROC AUC: </span><span class="sc">{</span>roc_auc<span class="sc">:.2f}</span><span class="ss">"</span>)</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Check feature importance</span></span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>feat_imp <span class="op">=</span> xgbc.feature_importances_</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>pd.DataFrame(</span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>    {<span class="st">'Feature'</span>: X.columns, <span class="st">'Importance'</span>: feat_imp}</span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>).sort_values(by<span class="op">=</span><span class="st">'Importance'</span>, ascending<span class="op">=</span><span class="va">False</span>).reset_index(drop<span class="op">=</span><span class="va">True</span>).head(<span class="dv">10</span>).T</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Accuracy: 0.98
+Precision: 0.96
+Recall: 0.99
+F1-score: 0.97
+ROC AUC: 0.99</code></pre>
+</div>
+<div class="cell-output cell-output-display" data-execution_count="18">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">0</th>
+<th data-quarto-table-cell-role="th">1</th>
+<th data-quarto-table-cell-role="th">2</th>
+<th data-quarto-table-cell-role="th">3</th>
+<th data-quarto-table-cell-role="th">4</th>
+<th data-quarto-table-cell-role="th">5</th>
+<th data-quarto-table-cell-role="th">6</th>
+<th data-quarto-table-cell-role="th">7</th>
+<th data-quarto-table-cell-role="th">8</th>
+<th data-quarto-table-cell-role="th">9</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Feature</td>
+<td>days_btw_claimed_and_schedstart</td>
+<td>dfw</td>
+<td>ever_unclaimed</td>
+<td>worcestermetro</td>
+<td>greaterboston</td>
+<td>greensborometro</td>
+<td>clevelandmetro</td>
+<td>days_btw_created_and_claimed</td>
+<td>dollars_paid_to_driver</td>
+<td>total_predicted_distance_miles_for_fare</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">Importance</td>
+<td>0.696456</td>
+<td>0.028175</td>
+<td>0.020267</td>
+<td>0.018644</td>
+<td>0.01705</td>
+<td>0.013482</td>
+<td>0.012899</td>
+<td>0.012578</td>
+<td>0.012338</td>
+<td>0.012</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="what-is-the-optimal-price-per-trip-and-by-how-much-boosted-trips-deviate-from-it" class="level3">
+<h3 class="anchored" data-anchor-id="what-is-the-optimal-price-per-trip-and-by-how-much-boosted-trips-deviate-from-it">What is the optimal price per trip and by how much boosted trips deviate from it?</h3>
+<ul>
+<li>HSD guarantees the rides, so once they are scheduled, HSD needs to make sure they are claimed as soon as possible at the lowest price possible.</li>
+<li>I assume HSD has a pricing system that outputs the optimal pricing for each <code>trip_id</code>. Therefore, I will assume that if a trip was claimed without a boost, the dollar amount paid to the driver is the optimal price per trip. I will call that fare the <code>base_fare</code>. For trips that received a boost, <code>base_fare</code> would be <code>dollars_paid_to_driver</code> minus the sum of all the boosts that trip received. This assumes that <code>dollars_paid_to_driver</code> is the total final amount of dollars paid to a driver, including any boosts.</li>
+<li>I will also define a column called <code>boost_prop_base_fare</code> to represent the percentage of the optimal price that the trip had to be boosted to claim.</li>
+</ul>
+<div id="f105c562-5272-4e29-9d5d-a4d164782328" class="cell" data-execution_count="20">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>g_price <span class="op">=</span> df.groupby([<span class="st">"trip_id"</span>, <span class="st">"boost_ind"</span>], as_index<span class="op">=</span><span class="va">False</span>).agg(</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>    dollars_paid_to_driver<span class="op">=</span>(<span class="st">"dollars_paid_to_driver"</span>, <span class="st">"max"</span>), </span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>    total_boost_dollars<span class="op">=</span>(<span class="st">"cumulative_boost_amount_cents"</span>, <span class="kw">lambda</span> x: x.<span class="bu">max</span>() <span class="op">/</span> <span class="dv">100</span>)</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> assign_base_fare(row):</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> row[<span class="st">"dollars_paid_to_driver"</span>] <span class="cf">if</span> row[<span class="st">"boost_ind"</span>] <span class="op">==</span> <span class="dv">0</span> <span class="cf">else</span> row[<span class="st">"dollars_paid_to_driver"</span>] <span class="op">-</span> row[<span class="st">"total_boost_dollars"</span>]</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>g_price[<span class="st">"base_fare"</span>] <span class="op">=</span> g_price.<span class="bu">apply</span>(<span class="kw">lambda</span> x: assign_base_fare(x), axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>g_price[<span class="st">"boost_pct_base_fare"</span>] <span class="op">=</span> (g_price.total_boost_dollars <span class="op">/</span> g_price.base_fare).mul(<span class="dv">100</span>).<span class="bu">round</span>(<span class="dv">2</span>)</span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>g_price</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="19">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">trip_id</th>
+<th data-quarto-table-cell-role="th">boost_ind</th>
+<th data-quarto-table-cell-role="th">dollars_paid_to_driver</th>
+<th data-quarto-table-cell-role="th">total_boost_dollars</th>
+<th data-quarto-table-cell-role="th">base_fare</th>
+<th data-quarto-table-cell-role="th">boost_pct_base_fare</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>43</td>
+<td>0</td>
+<td>34.43</td>
+<td>0.000</td>
+<td>34.430</td>
+<td>0.00</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>58</td>
+<td>1</td>
+<td>34.73</td>
+<td>8.771</td>
+<td>25.959</td>
+<td>33.79</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>62</td>
+<td>1</td>
+<td>31.37</td>
+<td>5.880</td>
+<td>25.490</td>
+<td>23.07</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>72</td>
+<td>0</td>
+<td>32.83</td>
+<td>0.000</td>
+<td>32.830</td>
+<td>0.00</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>74</td>
+<td>1</td>
+<td>37.38</td>
+<td>8.680</td>
+<td>28.700</td>
+<td>30.24</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">17230</td>
+<td>383327</td>
+<td>1</td>
+<td>12.04</td>
+<td>2.240</td>
+<td>9.800</td>
+<td>22.86</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">17231</td>
+<td>383338</td>
+<td>1</td>
+<td>13.86</td>
+<td>2.660</td>
+<td>11.200</td>
+<td>23.75</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">17232</td>
+<td>383342</td>
+<td>1</td>
+<td>19.47</td>
+<td>1.400</td>
+<td>18.070</td>
+<td>7.75</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">17233</td>
+<td>383346</td>
+<td>1</td>
+<td>18.37</td>
+<td>1.400</td>
+<td>16.970</td>
+<td>8.25</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">17234</td>
+<td>383347</td>
+<td>1</td>
+<td>16.60</td>
+<td>4.662</td>
+<td>11.938</td>
+<td>39.05</td>
+</tr>
+</tbody>
+</table>
+
+<p>17235 rows × 6 columns</p>
+</div>
+</div>
+</div>
+<ul>
+<li>Let’s look at the distribution of percentage deviation from the optimal fare but only for trips that did not receive a boost. Trips that didn’t receive a boost have a <code>boost_pct_base_fare</code> of zero.</li>
+<li>There is also one outlier for trip_id number 16426, where the calculation for <code>boost_pct_base_fare</code> is negative because total_boost_dollars is greater than <code>dollars_paid_to_driver</code>. I will drop that observation in the interest of time. Still, normally, I would explore doing something else, like truncating it to a very high distribution value, because it received an important boost.</li>
+</ul>
+<div id="ec49aee1-0097-4ef0-93e8-e5473f87bef2" class="cell" data-execution_count="21">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>g_price <span class="op">=</span> g_price[g_price.boost_ind <span class="op">==</span> <span class="dv">1</span>]</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>g_price <span class="op">=</span> g_price[g_price.boost_pct_base_fare <span class="op">&gt;=</span> <span class="dv">0</span> ]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<ul>
+<li>Clearly, the trips that do get a boost deviate considerably from their optimal price. Using the expected value, HSD would expect that any trip that needs a boost will require an increase of 89% of the original optimal base fare.</li>
+</ul>
+<div id="34dd040b-4637-4549-b717-86eacbc4c442" class="cell" data-execution_count="22">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>g_price.boost_pct_base_fare.describe(percentiles<span class="op">=</span>[<span class="fl">.1</span>, <span class="fl">.2</span>, <span class="fl">.3</span>, <span class="fl">.4</span>, <span class="fl">.5</span>, <span class="fl">.6</span>, <span class="fl">.7</span>, <span class="fl">.8</span>, <span class="fl">.9</span>, <span class="fl">.92</span>, <span class="fl">.94</span>, <span class="fl">.96</span>, <span class="fl">.98</span>, <span class="fl">.99</span>, <span class="fl">.999</span>]).to_frame().T.<span class="bu">round</span>(<span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="21">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">count</th>
+<th data-quarto-table-cell-role="th">mean</th>
+<th data-quarto-table-cell-role="th">std</th>
+<th data-quarto-table-cell-role="th">min</th>
+<th data-quarto-table-cell-role="th">10%</th>
+<th data-quarto-table-cell-role="th">20%</th>
+<th data-quarto-table-cell-role="th">30%</th>
+<th data-quarto-table-cell-role="th">40%</th>
+<th data-quarto-table-cell-role="th">50%</th>
+<th data-quarto-table-cell-role="th">60%</th>
+<th data-quarto-table-cell-role="th">70%</th>
+<th data-quarto-table-cell-role="th">80%</th>
+<th data-quarto-table-cell-role="th">90%</th>
+<th data-quarto-table-cell-role="th">92%</th>
+<th data-quarto-table-cell-role="th">94%</th>
+<th data-quarto-table-cell-role="th">96%</th>
+<th data-quarto-table-cell-role="th">98%</th>
+<th data-quarto-table-cell-role="th">99%</th>
+<th data-quarto-table-cell-role="th">99.9%</th>
+<th data-quarto-table-cell-role="th">max</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">boost_pct_base_fare</td>
+<td>7244.0</td>
+<td>89.08</td>
+<td>74.44</td>
+<td>0.55</td>
+<td>10.53</td>
+<td>17.45</td>
+<td>31.15</td>
+<td>49.03</td>
+<td>71.69</td>
+<td>95.57</td>
+<td>122.75</td>
+<td>153.98</td>
+<td>198.53</td>
+<td>208.69</td>
+<td>222.0</td>
+<td>243.09</td>
+<td>270.17</td>
+<td>296.92</td>
+<td>351.39</td>
+<td>450.0</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<ul>
+<li>By fitting a linear model, we could further condition the expected value to see if the expectation changes based on covariate values. That would give us additional information about the covariates that increase or decrease the sensitivity to price changes.</li>
+<li>I will build another toy model to explore this idea in the next section.</li>
+<li>However, at this point of the analysis, I think it is worth noting that ideally, I would like to measure the sensitivity of drivers to changes in the base fare to score drivers by likelihood of accepting the base fare. However, I don’t have driver specific information. Driver data would be key to further developing this analysis, especially considering that how much boosts can be optimized to be claimed earlier depends on the drivers. If I had driver data, I would propose building a model scoring each potential driver based on the characteristics of the trip to see how likely they would be to accept the base fare. Then I would propose segmenting the drivers by the likelihood and, once HSD system decides a boost is needed, I would offer personalized boosts to drivers in small increments starting with the drivers that are more likely to accept the base fare and continuing with the drivers that are less likely to accept the slight boost. Then I would repeat with an additional small boost.</li>
+<li>For now, I’ll continue with model deviation from the optimal price using trip specific information.</li>
+</ul>
+</section>
+</section>
+<section id="modeling-the-percentage-deviation-from-the-optimal-price" class="level2">
+<h2 class="anchored" data-anchor-id="modeling-the-percentage-deviation-from-the-optimal-price">Modeling the percentage deviation from the optimal price</h2>
+<section id="dependent-variable-1" class="level3">
+<h3 class="anchored" data-anchor-id="dependent-variable-1">Dependent variable</h3>
+<ul>
+<li>The unit of analysis is the trips flagged by the HSD system as needing a boost.</li>
+<li>The objective is to measure the deviation from the optimal changes conditional on the covariates by how much.</li>
+<li>The dependent variable would be <code>boost_pct_base_fare</code>.</li>
+</ul>
+<div id="f09c5ebb-63cc-41c3-9043-b333f29fc83c" class="cell" data-execution_count="23">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>df_y <span class="op">=</span> g_price.copy(deep<span class="op">=</span><span class="va">True</span>)[[<span class="st">"trip_id"</span>, <span class="st">"boost_pct_base_fare"</span>]]</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>df_y.head(<span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="22">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">trip_id</th>
+<th data-quarto-table-cell-role="th">boost_pct_base_fare</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">1</td>
+<td>58</td>
+<td>33.79</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">2</td>
+<td>62</td>
+<td>23.07</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>74</td>
+<td>30.24</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">5</td>
+<td>75</td>
+<td>12.83</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">6</td>
+<td>109</td>
+<td>13.80</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</section>
+<section id="independent-variables-1" class="level3">
+<h3 class="anchored" data-anchor-id="independent-variables-1">Independent variables</h3>
+<ul>
+<li>In the interest of time, I will reuse the independent variables used in the previous analysis section to get the independent variables for this model. I only reuse the variables from the earlier analysis of this notebook as part of the model development. The final model in this submission’s file <code>model_pipeline.py</code> cleans out this process.</li>
+<li>I won’t use anything related to the amount of the boost because that’s target leakage.</li>
+<li>For the assignment’s request to do at least two feature engineering processes, I will use the metro area’s one-hot encoding.</li>
+</ul>
+<div id="fbc72f43-7552-4fee-b267-fffb96927cb2" class="cell" data-execution_count="24">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Because of the dummies, it's easier to list the columns that I don't want</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>cols_not <span class="op">=</span> [</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"boost_ind"</span>, <span class="st">"created_at"</span>, <span class="st">"claimed_at"</span>, <span class="st">"ever_unclaimed"</span>,</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"scheduled_starts_at"</span>, <span class="st">"scheduled_ends_at"</span>, <span class="st">"trip_completed_at"</span>,</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"unclaimed_at"</span>, <span class="st">"dollars_paid_to_driver"</span>]</span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>df_trip <span class="op">=</span> g_agg.drop(cols_not, axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>df_trip.head(<span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="23">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">trip_id</th>
+<th data-quarto-table-cell-role="th">total_predicted_duration_mins</th>
+<th data-quarto-table-cell-role="th">total_predicted_distance_miles_for_fare</th>
+<th data-quarto-table-cell-role="th">commute_minutes</th>
+<th data-quarto-table-cell-role="th">commute_distance</th>
+<th data-quarto-table-cell-role="th">is_same_day_ride</th>
+<th data-quarto-table-cell-role="th">trip_starts_during_peak_hours</th>
+<th data-quarto-table-cell-role="th">days_btw_created_and_claimed</th>
+<th data-quarto-table-cell-role="th">days_btw_created_and_schedstart</th>
+<th data-quarto-table-cell-role="th">days_btw_claimed_and_schedstart</th>
+<th data-quarto-table-cell-role="th">abqmetro</th>
+<th data-quarto-table-cell-role="th">austinmetro</th>
+<th data-quarto-table-cell-role="th">bridgeportmetro</th>
+<th data-quarto-table-cell-role="th">clevelandmetro</th>
+<th data-quarto-table-cell-role="th">columbiametro</th>
+<th data-quarto-table-cell-role="th">dfw</th>
+<th data-quarto-table-cell-role="th">dmv</th>
+<th data-quarto-table-cell-role="th">greaterboston</th>
+<th data-quarto-table-cell-role="th">greaterseattle</th>
+<th data-quarto-table-cell-role="th">greensborometro</th>
+<th data-quarto-table-cell-role="th">hamptonroads</th>
+<th data-quarto-table-cell-role="th">honolulumetro</th>
+<th data-quarto-table-cell-role="th">kcmetro</th>
+<th data-quarto-table-cell-role="th">milwaukeemetro</th>
+<th data-quarto-table-cell-role="th">nashvillemetro</th>
+<th data-quarto-table-cell-role="th">nolametro</th>
+<th data-quarto-table-cell-role="th">okcmetro</th>
+<th data-quarto-table-cell-role="th">omahametro</th>
+<th data-quarto-table-cell-role="th">orlandometro</th>
+<th data-quarto-table-cell-role="th">phillymetro</th>
+<th data-quarto-table-cell-role="th">providencemetro</th>
+<th data-quarto-table-cell-role="th">richmondmetro</th>
+<th data-quarto-table-cell-role="th">sacramentometro</th>
+<th data-quarto-table-cell-role="th">sarasotametro</th>
+<th data-quarto-table-cell-role="th">sdmetro</th>
+<th data-quarto-table-cell-role="th">tucsonmetro</th>
+<th data-quarto-table-cell-role="th">worcestermetro</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>43</td>
+<td>48.60</td>
+<td>24.88</td>
+<td>35.78</td>
+<td>4.88</td>
+<td>False</td>
+<td>True</td>
+<td>332.388067</td>
+<td>351.211481</td>
+<td>18.823414</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>58</td>
+<td>28.58</td>
+<td>19.19</td>
+<td>29.92</td>
+<td>8.90</td>
+<td>False</td>
+<td>True</td>
+<td>358.960741</td>
+<td>358.994306</td>
+<td>0.033565</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>62</td>
+<td>27.24</td>
+<td>19.19</td>
+<td>14.50</td>
+<td>2.04</td>
+<td>False</td>
+<td>True</td>
+<td>371.943032</td>
+<td>371.974803</td>
+<td>0.031771</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>72</td>
+<td>31.00</td>
+<td>19.40</td>
+<td>32.41</td>
+<td>20.50</td>
+<td>False</td>
+<td>True</td>
+<td>358.083183</td>
+<td>358.255058</td>
+<td>0.171875</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>74</td>
+<td>31.00</td>
+<td>19.40</td>
+<td>35.17</td>
+<td>18.91</td>
+<td>False</td>
+<td>True</td>
+<td>371.225405</td>
+<td>371.255058</td>
+<td>0.029653</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<ul>
+<li>During the panel, it was mentioned that HSD has a lot of seasonality. I think it would be valuable for the model to account for that. To simplify things, I will only use <code>scheduled_starts_at</code> to calculate seasonality features.</li>
+<li>For another example of feature engineering from the two requested in the assignment, I do cosine and sine transformations of month, day of the week, and hour of <code>scheduled_starts_at</code> to capture the cyclical nature of time and avoid the discontinuity introduced by an ordinal representation of dates and time. Note that I use both sine and cosine transformation for each feature to allow the feature to be more flexible and capture the seasonal effects.</li>
+<li>The problem with sine and cosine features is that they’re harder to interpret in a regression context.</li>
+</ul>
+<div id="066aa447-4c2a-4bc6-b99c-9fa543b0b65a" class="cell" data-execution_count="25">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>df_sched <span class="op">=</span> g_agg.copy(deep<span class="op">=</span><span class="va">True</span>)[[<span class="st">"trip_id"</span>, <span class="st">"scheduled_starts_at"</span>]]</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>df_sched[<span class="st">'sin_month'</span>] <span class="op">=</span> np.sin(<span class="dv">2</span> <span class="op">*</span> np.pi <span class="op">*</span> df_sched[<span class="st">'scheduled_starts_at'</span>].dt.month <span class="op">/</span> <span class="dv">12</span>)</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>df_sched[<span class="st">'cos_month'</span>] <span class="op">=</span> np.cos(<span class="dv">2</span> <span class="op">*</span> np.pi <span class="op">*</span> df_sched[<span class="st">'scheduled_starts_at'</span>].dt.month <span class="op">/</span> <span class="dv">12</span>)</span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>df_sched[<span class="st">'sin_day_of_week'</span>] <span class="op">=</span> np.sin(<span class="dv">2</span> <span class="op">*</span> np.pi <span class="op">*</span> df_sched[<span class="st">'scheduled_starts_at'</span>].dt.dayofweek <span class="op">/</span> <span class="dv">7</span>)</span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>df_sched[<span class="st">'cos_day_of_week'</span>] <span class="op">=</span> np.cos(<span class="dv">2</span> <span class="op">*</span> np.pi <span class="op">*</span> df_sched[<span class="st">'scheduled_starts_at'</span>].dt.dayofweek <span class="op">/</span> <span class="dv">7</span>)</span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>df_sched[<span class="st">'sin_hour'</span>] <span class="op">=</span> np.sin(<span class="dv">2</span> <span class="op">*</span> np.pi <span class="op">*</span> df_sched[<span class="st">'scheduled_starts_at'</span>].dt.hour <span class="op">/</span> <span class="dv">24</span>)</span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>df_sched[<span class="st">'cos_hour'</span>] <span class="op">=</span> np.cos(<span class="dv">2</span> <span class="op">*</span> np.pi <span class="op">*</span> df_sched[<span class="st">'scheduled_starts_at'</span>].dt.hour <span class="op">/</span> <span class="dv">24</span>)</span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>df_sched.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="24">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">trip_id</th>
+<th data-quarto-table-cell-role="th">scheduled_starts_at</th>
+<th data-quarto-table-cell-role="th">sin_month</th>
+<th data-quarto-table-cell-role="th">cos_month</th>
+<th data-quarto-table-cell-role="th">sin_day_of_week</th>
+<th data-quarto-table-cell-role="th">cos_day_of_week</th>
+<th data-quarto-table-cell-role="th">sin_hour</th>
+<th data-quarto-table-cell-role="th">cos_hour</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>43</td>
+<td>2024-05-17 22:25:00</td>
+<td>5.000000e-01</td>
+<td>-0.866025</td>
+<td>-0.433884</td>
+<td>-0.900969</td>
+<td>-0.500000</td>
+<td>0.866025</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>58</td>
+<td>2024-05-29 15:29:10</td>
+<td>5.000000e-01</td>
+<td>-0.866025</td>
+<td>0.974928</td>
+<td>-0.222521</td>
+<td>-0.707107</td>
+<td>-0.707107</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>62</td>
+<td>2024-06-11 15:01:05</td>
+<td>1.224647e-16</td>
+<td>-1.000000</td>
+<td>0.781831</td>
+<td>0.623490</td>
+<td>-0.707107</td>
+<td>-0.707107</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>72</td>
+<td>2024-05-28 21:45:00</td>
+<td>5.000000e-01</td>
+<td>-0.866025</td>
+<td>0.781831</td>
+<td>0.623490</td>
+<td>-0.707107</td>
+<td>0.707107</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>74</td>
+<td>2024-06-10 21:45:00</td>
+<td>1.224647e-16</td>
+<td>-1.000000</td>
+<td>0.000000</td>
+<td>1.000000</td>
+<td>-0.707107</td>
+<td>0.707107</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<ul>
+<li>Now let’s put all the independent variables together.</li>
+</ul>
+<div id="4db09ef0-9952-465c-a11b-9dcc0140fa09" class="cell" data-execution_count="26">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>df_x <span class="op">=</span> pd.merge(df_sched, df_trip, on<span class="op">=</span><span class="st">"trip_id"</span>, how<span class="op">=</span><span class="st">"inner"</span>, validate<span class="op">=</span><span class="st">"1:1"</span>)</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>df_x.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="25">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">trip_id</th>
+<th data-quarto-table-cell-role="th">scheduled_starts_at</th>
+<th data-quarto-table-cell-role="th">sin_month</th>
+<th data-quarto-table-cell-role="th">cos_month</th>
+<th data-quarto-table-cell-role="th">sin_day_of_week</th>
+<th data-quarto-table-cell-role="th">cos_day_of_week</th>
+<th data-quarto-table-cell-role="th">sin_hour</th>
+<th data-quarto-table-cell-role="th">cos_hour</th>
+<th data-quarto-table-cell-role="th">total_predicted_duration_mins</th>
+<th data-quarto-table-cell-role="th">total_predicted_distance_miles_for_fare</th>
+<th data-quarto-table-cell-role="th">commute_minutes</th>
+<th data-quarto-table-cell-role="th">commute_distance</th>
+<th data-quarto-table-cell-role="th">is_same_day_ride</th>
+<th data-quarto-table-cell-role="th">trip_starts_during_peak_hours</th>
+<th data-quarto-table-cell-role="th">days_btw_created_and_claimed</th>
+<th data-quarto-table-cell-role="th">days_btw_created_and_schedstart</th>
+<th data-quarto-table-cell-role="th">days_btw_claimed_and_schedstart</th>
+<th data-quarto-table-cell-role="th">abqmetro</th>
+<th data-quarto-table-cell-role="th">austinmetro</th>
+<th data-quarto-table-cell-role="th">bridgeportmetro</th>
+<th data-quarto-table-cell-role="th">clevelandmetro</th>
+<th data-quarto-table-cell-role="th">columbiametro</th>
+<th data-quarto-table-cell-role="th">dfw</th>
+<th data-quarto-table-cell-role="th">dmv</th>
+<th data-quarto-table-cell-role="th">greaterboston</th>
+<th data-quarto-table-cell-role="th">greaterseattle</th>
+<th data-quarto-table-cell-role="th">greensborometro</th>
+<th data-quarto-table-cell-role="th">hamptonroads</th>
+<th data-quarto-table-cell-role="th">honolulumetro</th>
+<th data-quarto-table-cell-role="th">kcmetro</th>
+<th data-quarto-table-cell-role="th">milwaukeemetro</th>
+<th data-quarto-table-cell-role="th">nashvillemetro</th>
+<th data-quarto-table-cell-role="th">nolametro</th>
+<th data-quarto-table-cell-role="th">okcmetro</th>
+<th data-quarto-table-cell-role="th">omahametro</th>
+<th data-quarto-table-cell-role="th">orlandometro</th>
+<th data-quarto-table-cell-role="th">phillymetro</th>
+<th data-quarto-table-cell-role="th">providencemetro</th>
+<th data-quarto-table-cell-role="th">richmondmetro</th>
+<th data-quarto-table-cell-role="th">sacramentometro</th>
+<th data-quarto-table-cell-role="th">sarasotametro</th>
+<th data-quarto-table-cell-role="th">sdmetro</th>
+<th data-quarto-table-cell-role="th">tucsonmetro</th>
+<th data-quarto-table-cell-role="th">worcestermetro</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>43</td>
+<td>2024-05-17 22:25:00</td>
+<td>5.000000e-01</td>
+<td>-0.866025</td>
+<td>-0.433884</td>
+<td>-0.900969</td>
+<td>-0.500000</td>
+<td>0.866025</td>
+<td>48.60</td>
+<td>24.88</td>
+<td>35.78</td>
+<td>4.88</td>
+<td>False</td>
+<td>True</td>
+<td>332.388067</td>
+<td>351.211481</td>
+<td>18.823414</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>58</td>
+<td>2024-05-29 15:29:10</td>
+<td>5.000000e-01</td>
+<td>-0.866025</td>
+<td>0.974928</td>
+<td>-0.222521</td>
+<td>-0.707107</td>
+<td>-0.707107</td>
+<td>28.58</td>
+<td>19.19</td>
+<td>29.92</td>
+<td>8.90</td>
+<td>False</td>
+<td>True</td>
+<td>358.960741</td>
+<td>358.994306</td>
+<td>0.033565</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>62</td>
+<td>2024-06-11 15:01:05</td>
+<td>1.224647e-16</td>
+<td>-1.000000</td>
+<td>0.781831</td>
+<td>0.623490</td>
+<td>-0.707107</td>
+<td>-0.707107</td>
+<td>27.24</td>
+<td>19.19</td>
+<td>14.50</td>
+<td>2.04</td>
+<td>False</td>
+<td>True</td>
+<td>371.943032</td>
+<td>371.974803</td>
+<td>0.031771</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>72</td>
+<td>2024-05-28 21:45:00</td>
+<td>5.000000e-01</td>
+<td>-0.866025</td>
+<td>0.781831</td>
+<td>0.623490</td>
+<td>-0.707107</td>
+<td>0.707107</td>
+<td>31.00</td>
+<td>19.40</td>
+<td>32.41</td>
+<td>20.50</td>
+<td>False</td>
+<td>True</td>
+<td>358.083183</td>
+<td>358.255058</td>
+<td>0.171875</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>74</td>
+<td>2024-06-10 21:45:00</td>
+<td>1.224647e-16</td>
+<td>-1.000000</td>
+<td>0.000000</td>
+<td>1.000000</td>
+<td>-0.707107</td>
+<td>0.707107</td>
+<td>31.00</td>
+<td>19.40</td>
+<td>35.17</td>
+<td>18.91</td>
+<td>False</td>
+<td>True</td>
+<td>371.225405</td>
+<td>371.255058</td>
+<td>0.029653</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<ul>
+<li>And here is the full data ready for modeling.</li>
+</ul>
+<div id="04082f39-c8b7-47c3-b847-be0ddcac0a56" class="cell" data-execution_count="27">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>df_model <span class="op">=</span> pd.merge(df_y, df_x, on<span class="op">=</span><span class="st">"trip_id"</span>, how<span class="op">=</span><span class="st">"inner"</span>, validate<span class="op">=</span><span class="st">"1:1"</span>).drop([<span class="st">"scheduled_starts_at"</span>, <span class="st">"trip_id"</span>], axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>df_model.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="26">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">boost_pct_base_fare</th>
+<th data-quarto-table-cell-role="th">sin_month</th>
+<th data-quarto-table-cell-role="th">cos_month</th>
+<th data-quarto-table-cell-role="th">sin_day_of_week</th>
+<th data-quarto-table-cell-role="th">cos_day_of_week</th>
+<th data-quarto-table-cell-role="th">sin_hour</th>
+<th data-quarto-table-cell-role="th">cos_hour</th>
+<th data-quarto-table-cell-role="th">total_predicted_duration_mins</th>
+<th data-quarto-table-cell-role="th">total_predicted_distance_miles_for_fare</th>
+<th data-quarto-table-cell-role="th">commute_minutes</th>
+<th data-quarto-table-cell-role="th">commute_distance</th>
+<th data-quarto-table-cell-role="th">is_same_day_ride</th>
+<th data-quarto-table-cell-role="th">trip_starts_during_peak_hours</th>
+<th data-quarto-table-cell-role="th">days_btw_created_and_claimed</th>
+<th data-quarto-table-cell-role="th">days_btw_created_and_schedstart</th>
+<th data-quarto-table-cell-role="th">days_btw_claimed_and_schedstart</th>
+<th data-quarto-table-cell-role="th">abqmetro</th>
+<th data-quarto-table-cell-role="th">austinmetro</th>
+<th data-quarto-table-cell-role="th">bridgeportmetro</th>
+<th data-quarto-table-cell-role="th">clevelandmetro</th>
+<th data-quarto-table-cell-role="th">columbiametro</th>
+<th data-quarto-table-cell-role="th">dfw</th>
+<th data-quarto-table-cell-role="th">dmv</th>
+<th data-quarto-table-cell-role="th">greaterboston</th>
+<th data-quarto-table-cell-role="th">greaterseattle</th>
+<th data-quarto-table-cell-role="th">greensborometro</th>
+<th data-quarto-table-cell-role="th">hamptonroads</th>
+<th data-quarto-table-cell-role="th">honolulumetro</th>
+<th data-quarto-table-cell-role="th">kcmetro</th>
+<th data-quarto-table-cell-role="th">milwaukeemetro</th>
+<th data-quarto-table-cell-role="th">nashvillemetro</th>
+<th data-quarto-table-cell-role="th">nolametro</th>
+<th data-quarto-table-cell-role="th">okcmetro</th>
+<th data-quarto-table-cell-role="th">omahametro</th>
+<th data-quarto-table-cell-role="th">orlandometro</th>
+<th data-quarto-table-cell-role="th">phillymetro</th>
+<th data-quarto-table-cell-role="th">providencemetro</th>
+<th data-quarto-table-cell-role="th">richmondmetro</th>
+<th data-quarto-table-cell-role="th">sacramentometro</th>
+<th data-quarto-table-cell-role="th">sarasotametro</th>
+<th data-quarto-table-cell-role="th">sdmetro</th>
+<th data-quarto-table-cell-role="th">tucsonmetro</th>
+<th data-quarto-table-cell-role="th">worcestermetro</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>33.79</td>
+<td>5.000000e-01</td>
+<td>-0.866025</td>
+<td>0.974928</td>
+<td>-0.222521</td>
+<td>-0.707107</td>
+<td>-0.707107</td>
+<td>28.58</td>
+<td>19.19</td>
+<td>29.92</td>
+<td>8.90</td>
+<td>False</td>
+<td>True</td>
+<td>358.960741</td>
+<td>358.994306</td>
+<td>0.033565</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>23.07</td>
+<td>1.224647e-16</td>
+<td>-1.000000</td>
+<td>0.781831</td>
+<td>0.623490</td>
+<td>-0.707107</td>
+<td>-0.707107</td>
+<td>27.24</td>
+<td>19.19</td>
+<td>14.50</td>
+<td>2.04</td>
+<td>False</td>
+<td>True</td>
+<td>371.943032</td>
+<td>371.974803</td>
+<td>0.031771</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>30.24</td>
+<td>1.224647e-16</td>
+<td>-1.000000</td>
+<td>0.000000</td>
+<td>1.000000</td>
+<td>-0.707107</td>
+<td>0.707107</td>
+<td>31.00</td>
+<td>19.40</td>
+<td>35.17</td>
+<td>18.91</td>
+<td>False</td>
+<td>True</td>
+<td>371.225405</td>
+<td>371.255058</td>
+<td>0.029653</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>12.83</td>
+<td>1.224647e-16</td>
+<td>-1.000000</td>
+<td>-0.433884</td>
+<td>-0.900969</td>
+<td>-0.707107</td>
+<td>0.707107</td>
+<td>31.00</td>
+<td>19.40</td>
+<td>9.74</td>
+<td>4.25</td>
+<td>False</td>
+<td>True</td>
+<td>375.237442</td>
+<td>375.255058</td>
+<td>0.017616</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>13.80</td>
+<td>5.000000e-01</td>
+<td>-0.866025</td>
+<td>0.974928</td>
+<td>-0.222521</td>
+<td>-0.707107</td>
+<td>-0.707107</td>
+<td>36.73</td>
+<td>22.25</td>
+<td>20.34</td>
+<td>10.82</td>
+<td>False</td>
+<td>True</td>
+<td>354.845463</td>
+<td>354.870347</td>
+<td>0.024884</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<ul>
+<li>I will also split the data into a training and a test set.</li>
+<li>With more time, I would have also created a validation set to use only the test set one time after model selection. However, I’ll do model selection with the test set to simplify the process.</li>
+</ul>
+<div id="373812be-a308-4e35-965e-427164218de4" class="cell" data-execution_count="28">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>X <span class="op">=</span> df_model.drop(columns<span class="op">=</span>[<span class="st">"boost_pct_base_fare"</span>])</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> df_model[<span class="st">"boost_pct_base_fare"</span>]</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>X_train, X_test, y_train, y_test <span class="op">=</span> train_test_split(X, y, test_size<span class="op">=</span><span class="fl">0.2</span>, random_state<span class="op">=</span><span class="dv">99</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<ul>
+<li>As a final step, I will scale the features with a standard scaler, especially because one of the model I’ll try is a regression, which are sensitive to scaling issues.</li>
+</ul>
+<div id="3b41f3e6-7e0f-432e-bd38-0cf65ccf94c9" class="cell" data-execution_count="29">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>scaler <span class="op">=</span> StandardScaler()</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>X_train_scaled <span class="op">=</span> scaler.fit_transform(X_train)</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>X_test_scaled <span class="op">=</span> scaler.transform(X_test)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="elastic-net-regression" class="level3">
+<h3 class="anchored" data-anchor-id="elastic-net-regression">Elastic Net Regression</h3>
+<ul>
+<li>I will use an Elastic Net regression to start modeling.</li>
+<li>I like this model when I need to do something quick because it balances Lasso and Ridge regressions but still has the regression’s interpretability. As a result, Elastic Net helps with feature selection and dealing with highly correlated features, which is the case in my data.</li>
+</ul>
+<div id="fa5f3b94-4a43-48ce-8261-72e6fa2ca704" class="cell" data-execution_count="30">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>elastic_net <span class="op">=</span> ElasticNet(random_state<span class="op">=</span><span class="dv">99</span>)</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>param_dist <span class="op">=</span> {</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"alpha"</span>: [<span class="fl">.1</span>, <span class="fl">.2</span>, <span class="fl">.3</span>, <span class="fl">.4</span>, <span class="fl">.5</span>, <span class="fl">.6</span>, <span class="fl">.7</span>, <span class="fl">.8</span>, <span class="fl">.9</span>],</span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"l1_ratio"</span>: [<span class="fl">.05</span>, <span class="fl">.15</span>, <span class="fl">.25</span>, <span class="fl">.35</span>, <span class="fl">.45</span>, <span class="fl">.55</span>, <span class="fl">.65</span>, <span class="fl">.75</span>, <span class="fl">.85</span>, <span class="fl">.95</span>]</span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>random_search <span class="op">=</span> RandomizedSearchCV(</span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>    elastic_net, param_distributions<span class="op">=</span>param_dist, n_iter<span class="op">=</span><span class="dv">10</span>, scoring<span class="op">=</span><span class="st">"r2"</span>, </span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>    cv<span class="op">=</span><span class="dv">10</span>, random_state<span class="op">=</span><span class="dv">99</span>, n_jobs<span class="op">=-</span><span class="dv">1</span></span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a>random_search.fit(X_train_scaled, y_train)</span>
+<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a>elastic_net <span class="op">=</span> random_search.best_estimator_</span>
+<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-13"><a href="#cb33-13" aria-hidden="true" tabindex="-1"></a>y_pred <span class="op">=</span> elastic_net.predict(X_test_scaled)</span>
+<span id="cb33-14"><a href="#cb33-14" aria-hidden="true" tabindex="-1"></a>mae <span class="op">=</span> mean_absolute_error(y_test, y_pred)</span>
+<span id="cb33-15"><a href="#cb33-15" aria-hidden="true" tabindex="-1"></a>mse <span class="op">=</span> mean_squared_error(y_test, y_pred)</span>
+<span id="cb33-16"><a href="#cb33-16" aria-hidden="true" tabindex="-1"></a>r2 <span class="op">=</span> r2_score(y_test, y_pred)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<ul>
+<li>The model’s performance looks acceptable with an R squared of 50%. It is a toy model, and some regression assumptions are likely being violated. Still, it’s a good indicator to have an R squared of 50%, especially considering that the dependent variable seems to be, at least from my intuition, a complex variable to predict.</li>
+<li>The MAE seems high, indicating that the predictions are not precise.</li>
+</ul>
+<div id="62143eb3-02df-41fb-b477-b822584bbe96" class="cell" data-execution_count="31">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Mean Absolute Error: </span><span class="sc">{</span><span class="bu">int</span>(mae)<span class="sc">:,}</span><span class="ss">"</span>)</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Mean Squared Error: </span><span class="sc">{</span><span class="bu">int</span>(mse)<span class="sc">:,}</span><span class="ss">"</span>)</span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"R Score: </span><span class="sc">{</span>r2<span class="sc">:.2f}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Mean Absolute Error: 40
+Mean Squared Error: 2,703
+R Score: 0.51</code></pre>
+</div>
+</div>
+<ul>
+<li>One of the main advantages of using a regression like Elastic Net is the interpretability. As mentioned, many assumptions should be considered before running a regression, which I have skipped for the sake of time. However, I would spend more time making sure those assumptions are not violated at this step.</li>
+<li>Normally, I would take a reasonable amount of time to interpret these results to ensure they make sense and align with business logic. However, to be able to continue working on the assignment, I’ll briefly mention a high-level interpretation.</li>
+<li>The coefficients show a strong seasonality component explaining the positive deviation from the base fare. The coefficients show a very strong positive relation between the sine and cosine of the month. Similarly, there is a very strong negative relation with the cosine of hours. With more time, I would engineer back the transformations to actual hours to give a more intuitive explanation of seasonality and the dependent variable. I’ll stop here at the moment to be able to continue.</li>
+<li>Another interesting coefficient is the negative relation that <code>total_predicted_ditance_miles_for_fare</code> has with the dependent variable. Drivers are more willing to accept longer trips without a boost.</li>
+<li>Another interesting result is the negative relationship of <code>total_predicted_duration_mins</code> and the dependent variable, suggesting that longer trips require fewer boosts because they’re already attractive to drivers without the boost.</li>
+<li>Finally, metro areas seem to have significant effects. For example, the drivers from DFW are more willing to accept lower boosts while the drivers from DMV tend to expect higher boosts.</li>
+</ul>
+<div id="4fcf3dc5-3daa-4a28-be67-eec66f9d8e61" class="cell" data-execution_count="32">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>elastic_net_coeffs <span class="op">=</span> pd.DataFrame({</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Feature"</span>: X.columns,</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Coefficient"</span>: elastic_net.coef_</span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>elastic_net_coeffs.sort_values(by<span class="op">=</span><span class="st">"Coefficient"</span>, ascending<span class="op">=</span><span class="va">False</span>).set_index(<span class="st">"Feature"</span>).T</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="31">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th">Feature</th>
+<th data-quarto-table-cell-role="th">sin_month</th>
+<th data-quarto-table-cell-role="th">dmv</th>
+<th data-quarto-table-cell-role="th">cos_month</th>
+<th data-quarto-table-cell-role="th">sacramentometro</th>
+<th data-quarto-table-cell-role="th">trip_starts_during_peak_hours</th>
+<th data-quarto-table-cell-role="th">days_btw_claimed_and_schedstart</th>
+<th data-quarto-table-cell-role="th">sarasotametro</th>
+<th data-quarto-table-cell-role="th">clevelandmetro</th>
+<th data-quarto-table-cell-role="th">richmondmetro</th>
+<th data-quarto-table-cell-role="th">bridgeportmetro</th>
+<th data-quarto-table-cell-role="th">cos_day_of_week</th>
+<th data-quarto-table-cell-role="th">commute_distance</th>
+<th data-quarto-table-cell-role="th">greaterseattle</th>
+<th data-quarto-table-cell-role="th">okcmetro</th>
+<th data-quarto-table-cell-role="th">days_btw_created_and_claimed</th>
+<th data-quarto-table-cell-role="th">austinmetro</th>
+<th data-quarto-table-cell-role="th">days_btw_created_and_schedstart</th>
+<th data-quarto-table-cell-role="th">sin_hour</th>
+<th data-quarto-table-cell-role="th">orlandometro</th>
+<th data-quarto-table-cell-role="th">phillymetro</th>
+<th data-quarto-table-cell-role="th">sin_day_of_week</th>
+<th data-quarto-table-cell-role="th">milwaukeemetro</th>
+<th data-quarto-table-cell-role="th">sdmetro</th>
+<th data-quarto-table-cell-role="th">nolametro</th>
+<th data-quarto-table-cell-role="th">tucsonmetro</th>
+<th data-quarto-table-cell-role="th">abqmetro</th>
+<th data-quarto-table-cell-role="th">columbiametro</th>
+<th data-quarto-table-cell-role="th">providencemetro</th>
+<th data-quarto-table-cell-role="th">commute_minutes</th>
+<th data-quarto-table-cell-role="th">nashvillemetro</th>
+<th data-quarto-table-cell-role="th">worcestermetro</th>
+<th data-quarto-table-cell-role="th">hamptonroads</th>
+<th data-quarto-table-cell-role="th">honolulumetro</th>
+<th data-quarto-table-cell-role="th">kcmetro</th>
+<th data-quarto-table-cell-role="th">greaterboston</th>
+<th data-quarto-table-cell-role="th">omahametro</th>
+<th data-quarto-table-cell-role="th">is_same_day_ride</th>
+<th data-quarto-table-cell-role="th">cos_hour</th>
+<th data-quarto-table-cell-role="th">total_predicted_duration_mins</th>
+<th data-quarto-table-cell-role="th">greensborometro</th>
+<th data-quarto-table-cell-role="th">dfw</th>
+<th data-quarto-table-cell-role="th">total_predicted_distance_miles_for_fare</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Coefficient</td>
+<td>39.069581</td>
+<td>16.093926</td>
+<td>14.287279</td>
+<td>9.873706</td>
+<td>9.428259</td>
+<td>9.136791</td>
+<td>4.33341</td>
+<td>3.726551</td>
+<td>3.498734</td>
+<td>3.41498</td>
+<td>3.053114</td>
+<td>2.581634</td>
+<td>1.886808</td>
+<td>1.190448</td>
+<td>1.004795</td>
+<td>0.869148</td>
+<td>0.860789</td>
+<td>0.492045</td>
+<td>0.45934</td>
+<td>0.291289</td>
+<td>0.284216</td>
+<td>0.062477</td>
+<td>0.035909</td>
+<td>-0.0</td>
+<td>-0.0</td>
+<td>-0.357562</td>
+<td>-0.413857</td>
+<td>-0.718632</td>
+<td>-0.925954</td>
+<td>-1.832734</td>
+<td>-2.021938</td>
+<td>-2.254483</td>
+<td>-2.795389</td>
+<td>-3.259201</td>
+<td>-3.376267</td>
+<td>-4.586749</td>
+<td>-4.832293</td>
+<td>-8.162534</td>
+<td>-8.412902</td>
+<td>-8.78086</td>
+<td>-10.704176</td>
+<td>-14.096357</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</section>
+<section id="xgboost-regressor" class="level3">
+<h3 class="anchored" data-anchor-id="xgboost-regressor">XGBoost Regressor</h3>
+<ul>
+<li>I like fitting XGBoost models as a baseline and a quick solution when I need a model quickly. They require minimum preprocessing and perform great. That’s why I decided also to fit an XGBoost Regressor and see what we can learn.</li>
+</ul>
+<div id="4e792013-7e6e-4c10-bac1-7569e038ed46" class="cell" data-execution_count="33">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>xgbr <span class="op">=</span> XGBRegressor(objective<span class="op">=</span><span class="st">"reg:squarederror"</span>, random_state<span class="op">=</span><span class="dv">99</span>)</span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>param_dist <span class="op">=</span> {</span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"max_depth"</span>: [<span class="dv">3</span>, <span class="dv">6</span>, <span class="dv">9</span>],</span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"n_estimators"</span>: [<span class="dv">50</span>, <span class="dv">100</span>, <span class="dv">200</span>, <span class="dv">400</span>, <span class="dv">500</span>],</span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"learning_rate"</span>: [<span class="fl">.01</span>, <span class="fl">.1</span>, <span class="fl">.3</span>, <span class="fl">.4</span>, <span class="fl">.5</span>],</span>
+<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"min_child_weight"</span>: [<span class="fl">.001</span>, <span class="fl">.01</span>, <span class="fl">.1</span>, <span class="fl">.3</span>, <span class="fl">.6</span>, <span class="fl">.9</span>],</span>
+<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"gamma"</span>: [<span class="fl">.001</span>, <span class="fl">.01</span>, <span class="fl">.1</span>, <span class="dv">1</span>, <span class="dv">10</span>],</span>
+<span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">"colsample_bytree"</span>: [<span class="fl">.3</span>, <span class="fl">.5</span>, <span class="fl">.7</span>, <span class="fl">.8</span>, <span class="dv">1</span>],</span>
+<span id="cb37-9"><a href="#cb37-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">"lambda"</span>: [<span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">6</span>, <span class="dv">9</span>, <span class="dv">12</span>, <span class="dv">20</span>, <span class="dv">30</span>],</span>
+<span id="cb37-10"><a href="#cb37-10" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb37-11"><a href="#cb37-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-12"><a href="#cb37-12" aria-hidden="true" tabindex="-1"></a>random_search <span class="op">=</span> RandomizedSearchCV(</span>
+<span id="cb37-13"><a href="#cb37-13" aria-hidden="true" tabindex="-1"></a>    xgbr, param_distributions<span class="op">=</span>param_dist, n_iter<span class="op">=</span><span class="dv">50</span>, scoring<span class="op">=</span><span class="st">"r2"</span>, </span>
+<span id="cb37-14"><a href="#cb37-14" aria-hidden="true" tabindex="-1"></a>    cv<span class="op">=</span><span class="dv">10</span>, random_state<span class="op">=</span><span class="dv">99</span>, n_jobs<span class="op">=-</span><span class="dv">1</span></span>
+<span id="cb37-15"><a href="#cb37-15" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb37-16"><a href="#cb37-16" aria-hidden="true" tabindex="-1"></a>random_search.fit(X_train_scaled, y_train)</span>
+<span id="cb37-17"><a href="#cb37-17" aria-hidden="true" tabindex="-1"></a>xgbr <span class="op">=</span> random_search.best_estimator_</span>
+<span id="cb37-18"><a href="#cb37-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-19"><a href="#cb37-19" aria-hidden="true" tabindex="-1"></a>y_pred <span class="op">=</span> xgbr.predict(X_test_scaled)</span>
+<span id="cb37-20"><a href="#cb37-20" aria-hidden="true" tabindex="-1"></a>mae <span class="op">=</span> mean_absolute_error(y_test, y_pred)</span>
+<span id="cb37-21"><a href="#cb37-21" aria-hidden="true" tabindex="-1"></a>mse <span class="op">=</span> mean_squared_error(y_test, y_pred)</span>
+<span id="cb37-22"><a href="#cb37-22" aria-hidden="true" tabindex="-1"></a>r2 <span class="op">=</span> r2_score(y_test, y_pred)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<ul>
+<li>The XGBoost Regressor outperforms the Elastic Net with an R squared 71% and a MAE of 29.</li>
+<li>I expected these results because this algorithm tends to perform very well and introduce interactions and other features as opposed to the Elastic Net where it is necessary to define them in the feature engineering process.</li>
+</ul>
+<div id="32c81764-aa1a-4cbe-a48c-c396b043d09c" class="cell" data-execution_count="34">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Mean Absolute Error: </span><span class="sc">{</span>mae<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Mean Squared Error: </span><span class="sc">{</span>mse<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"R Score: </span><span class="sc">{</span>r2<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Mean Absolute Error: 27.2583467818231
+Mean Squared Error: 1522.9846995526882
+R Score: 0.7243108625007344</code></pre>
+</div>
+</div>
+<ul>
+<li>The only problem with the XGBoost Regressor compared to the Elastic Net is that it is more of a black box model. We get the feature importance, but they cannot be interpreted as coefficients from regression. In any case, it’s reassuring that the XGBoost Regressor finds similar features impactful in explaining the dependent variable.</li>
+</ul>
+<div id="46f0975c-e03e-4932-a33d-0f1d77d536da" class="cell" data-execution_count="35">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Get feature importances</span></span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>xgbr_feat_importance <span class="op">=</span> pd.DataFrame({</span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Feature"</span>: X.columns,</span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Importance"</span>: xgbr.feature_importances_</span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Print feature importance</span></span>
+<span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a>xgbr_feat_importance.sort_values(by<span class="op">=</span><span class="st">"Importance"</span>, ascending<span class="op">=</span><span class="va">False</span>).set_index(<span class="st">"Feature"</span>).T</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="34">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th">Feature</th>
+<th data-quarto-table-cell-role="th">dmv</th>
+<th data-quarto-table-cell-role="th">sacramentometro</th>
+<th data-quarto-table-cell-role="th">sin_month</th>
+<th data-quarto-table-cell-role="th">dfw</th>
+<th data-quarto-table-cell-role="th">trip_starts_during_peak_hours</th>
+<th data-quarto-table-cell-role="th">clevelandmetro</th>
+<th data-quarto-table-cell-role="th">sarasotametro</th>
+<th data-quarto-table-cell-role="th">greensborometro</th>
+<th data-quarto-table-cell-role="th">omahametro</th>
+<th data-quarto-table-cell-role="th">is_same_day_ride</th>
+<th data-quarto-table-cell-role="th">richmondmetro</th>
+<th data-quarto-table-cell-role="th">greaterseattle</th>
+<th data-quarto-table-cell-role="th">bridgeportmetro</th>
+<th data-quarto-table-cell-role="th">cos_hour</th>
+<th data-quarto-table-cell-role="th">total_predicted_distance_miles_for_fare</th>
+<th data-quarto-table-cell-role="th">okcmetro</th>
+<th data-quarto-table-cell-role="th">nashvillemetro</th>
+<th data-quarto-table-cell-role="th">orlandometro</th>
+<th data-quarto-table-cell-role="th">milwaukeemetro</th>
+<th data-quarto-table-cell-role="th">cos_month</th>
+<th data-quarto-table-cell-role="th">days_btw_claimed_and_schedstart</th>
+<th data-quarto-table-cell-role="th">total_predicted_duration_mins</th>
+<th data-quarto-table-cell-role="th">worcestermetro</th>
+<th data-quarto-table-cell-role="th">phillymetro</th>
+<th data-quarto-table-cell-role="th">austinmetro</th>
+<th data-quarto-table-cell-role="th">greaterboston</th>
+<th data-quarto-table-cell-role="th">kcmetro</th>
+<th data-quarto-table-cell-role="th">honolulumetro</th>
+<th data-quarto-table-cell-role="th">days_btw_created_and_schedstart</th>
+<th data-quarto-table-cell-role="th">sin_hour</th>
+<th data-quarto-table-cell-role="th">days_btw_created_and_claimed</th>
+<th data-quarto-table-cell-role="th">hamptonroads</th>
+<th data-quarto-table-cell-role="th">sdmetro</th>
+<th data-quarto-table-cell-role="th">nolametro</th>
+<th data-quarto-table-cell-role="th">commute_distance</th>
+<th data-quarto-table-cell-role="th">cos_day_of_week</th>
+<th data-quarto-table-cell-role="th">commute_minutes</th>
+<th data-quarto-table-cell-role="th">sin_day_of_week</th>
+<th data-quarto-table-cell-role="th">abqmetro</th>
+<th data-quarto-table-cell-role="th">tucsonmetro</th>
+<th data-quarto-table-cell-role="th">providencemetro</th>
+<th data-quarto-table-cell-role="th">columbiametro</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">Importance</td>
+<td>0.261393</td>
+<td>0.106757</td>
+<td>0.10264</td>
+<td>0.056939</td>
+<td>0.038362</td>
+<td>0.033349</td>
+<td>0.032938</td>
+<td>0.027074</td>
+<td>0.026976</td>
+<td>0.026039</td>
+<td>0.023063</td>
+<td>0.019435</td>
+<td>0.016886</td>
+<td>0.015235</td>
+<td>0.014514</td>
+<td>0.014344</td>
+<td>0.013568</td>
+<td>0.013484</td>
+<td>0.012873</td>
+<td>0.011668</td>
+<td>0.010827</td>
+<td>0.010471</td>
+<td>0.010205</td>
+<td>0.009864</td>
+<td>0.008414</td>
+<td>0.008253</td>
+<td>0.008103</td>
+<td>0.007884</td>
+<td>0.007349</td>
+<td>0.007247</td>
+<td>0.006165</td>
+<td>0.005535</td>
+<td>0.005378</td>
+<td>0.004956</td>
+<td>0.004136</td>
+<td>0.003556</td>
+<td>0.003216</td>
+<td>0.002503</td>
+<td>0.002357</td>
+<td>0.002329</td>
+<td>0.002069</td>
+<td>0.001646</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</section>
+<section id="final-model" class="level3">
+<h3 class="anchored" data-anchor-id="final-model">Final model</h3>
+<ul>
+<li>Considering the above model results, I will use the Elastic Net to fit my final model in the python script called <code>model_pipeline.py</code>.</li>
+<li>I decided that because I think gaining insights through interpretability is more important than achieving a better R squared using the XGBoost Regressor for this particular model.</li>
+</ul>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
